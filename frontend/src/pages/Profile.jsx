@@ -54,11 +54,11 @@ const Profile = () => {
 
   const getRoleLabel = (role) => {
     const roles = {
-      stagiaire: 'Stagiaire',
-      journaliste: 'Journaliste',
-      chercheur: 'Chercheur',
-      ecole: 'Établissement scolaire',
-      admin: 'Administrateur'
+      stagiaire: t('dashboard.types.stage', 'Stagiaire'),
+      journaliste: t('dashboard.types.presse', 'Journaliste'),
+      chercheur: t('dashboard.types.bibliotheque', 'Chercheur'),
+      ecole: t('dashboard.types.visite', 'Établissement scolaire'),
+      admin: t('profile.roles.admin', 'Administrateur')
     };
     return roles[role] || role;
   };
@@ -103,14 +103,14 @@ const Profile = () => {
       
       await fetchUser();
       
-      setMessage({ type: 'success', text: 'Profil mis à jour avec succès' });
+      setMessage({ type: 'success', text: t('profile.update_success') });
       setIsEditing(false);
       setSelectedProfileImage(null);
       setSelectedBannerImage(null);
     } catch (err) {
       console.error('Update error:', err);
       const response = err.response?.data;
-      let errorText = 'Erreur lors de la mise à jour';
+      let errorText = t('profile.update_error');
 
       if (response) {
         if (response.message) {
@@ -139,7 +139,7 @@ const Profile = () => {
     setMessage({ type: '', text: '' });
 
     if (passwordData.new_password !== passwordData.new_password_confirmation) {
-      setMessage({ type: 'error', text: 'Les nouveaux mots de passe ne correspondent pas' });
+      setMessage({ type: 'error', text: t('profile.password_mismatch') });
       setLoading(false);
       return;
     }
@@ -149,18 +149,18 @@ const Profile = () => {
         current_password: passwordData.current_password,
         new_password: passwordData.new_password
       });
-      setMessage({ type: 'success', text: 'Mot de passe modifié avec succès' });
+      setMessage({ type: 'success', text: t('profile.password_success') });
       setShowPasswordModal(false);
       setPasswordData({ current_password: '', new_password: '', new_password_confirmation: '' });
     } catch (err) {
-      setMessage({ type: 'error', text: err.response?.data?.message || 'Erreur lors du changement de mot de passe' });
+      setMessage({ type: 'error', text: err.response?.data?.message || t('profile.password_error') });
     } finally {
       setLoading(false);
     }
   };
 
   const displayUser = isAdminViewing ? profileUser : user;
-  const pageTitle = isAdminViewing ? 'Profil utilisateur' : 'Mon profil';
+  const pageTitle = isAdminViewing ? t('profile.admin_view_title') : t('profile.my_profile');
   
   const profileImageUrl = selectedProfileImage 
     ? URL.createObjectURL(selectedProfileImage) 
@@ -191,7 +191,7 @@ const Profile = () => {
         const response = await api.get(`/admin/users/${profileUserId}`);
         setProfileUser(response.data.data);
       } catch (err) {
-        setMessage({ type: 'error', text: 'Impossible de charger le profil de l\'utilisateur.' });
+        setMessage({ type: 'error', text: t('profile.load_error') });
       } finally {
         setIsLoadingProfile(false);
       }
@@ -224,7 +224,7 @@ const Profile = () => {
       <div className={`text-center p-12 rounded-2xl border ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
         <i className={`bi bi-exclamation-circle text-4xl ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}></i>
         <h3 className={`mt-2 text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-          Utilisateur introuvable
+          {t('profile.not_found')}
         </h3>
       </div>
     );
@@ -236,7 +236,7 @@ const Profile = () => {
       <div>
         <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>{pageTitle}</h1>
         <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-          Gérez vos informations personnelles et sécurisez votre compte
+          {t('profile.subtitle')}
         </p>
       </div>
 
@@ -318,7 +318,7 @@ const Profile = () => {
               }`}
             >
               <i className="bi bi-pencil"></i>
-              Modifier
+              {t('profile.edit_profile')}
             </button>
           )}
         </div>
@@ -334,7 +334,7 @@ const Profile = () => {
             darkMode ? 'text-white' : 'text-gray-900'
           }`}>
             <i className={`bi bi-person ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}></i>
-            Informations personnelles
+            {t('profile.personal_info')}
           </h3>
 
           {isEditing ? (
@@ -342,7 +342,7 @@ const Profile = () => {
               <div className={`grid grid-cols-2 gap-3 ${isRTL ? 'sm:gap-x-6' : ''}`}>
                 <div>
                   <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Prénom *
+                    {t('profile.first_name')}
                   </label>
                   <input
                     type="text"
@@ -358,7 +358,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Nom *
+                    {t('profile.last_name')}
                   </label>
                   <input
                     type="text"
@@ -375,7 +375,7 @@ const Profile = () => {
               </div>
               <div>
                 <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Téléphone
+                  {t('profile.phone')}
                 </label>
                 <input
                   type="tel"
@@ -390,7 +390,7 @@ const Profile = () => {
               </div>
               <div>
                 <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Ville
+                  {t('profile.city')}
                 </label>
                 <input
                   type="text"
@@ -405,7 +405,7 @@ const Profile = () => {
               </div>
               <div>
                 <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  Adresse
+                  {t('profile.address')}
                 </label>
                 <textarea
                   value={formData.address_line}
@@ -421,7 +421,7 @@ const Profile = () => {
               <div className="space-y-4">
                 <div>
                   <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Photo de profil
+                    {t('profile.profile_photo')}
                   </label>
                   <input
                     type="file"
@@ -429,7 +429,7 @@ const Profile = () => {
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
                       if (file && file.size > 5 * 1024 * 1024) {
-                        setMessage({ type: 'error', text: 'La photo de profil doit être inférieure à 5MB.' });
+                        setMessage({ type: 'error', text: t('profile.photo_size_error') });
                         setSelectedProfileImage(null);
                         return;
                       }
@@ -439,12 +439,12 @@ const Profile = () => {
                     className={`w-full text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   />
                   <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                    JPG, JPEG ou PNG, max 5MB
+                    {t('profile.image_format_help')}
                   </p>
                 </div>
                 <div>
                   <label className={`block text-xs font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Bannière
+                    {t('profile.banner')}
                   </label>
                   <input
                     type="file"
@@ -452,7 +452,7 @@ const Profile = () => {
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
                       if (file && file.size > 5 * 1024 * 1024) {
-                        setMessage({ type: 'error', text: 'La bannière doit être inférieure à 5MB.' });
+                        setMessage({ type: 'error', text: t('profile.banner_size_error') });
                         setSelectedBannerImage(null);
                         return;
                       }
@@ -462,7 +462,7 @@ const Profile = () => {
                     className={`w-full text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}
                   />
                   <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                    JPG, JPEG ou PNG, max 5MB
+                    {t('profile.image_format_help')}
                   </p>
                 </div>
               </div>
@@ -472,7 +472,7 @@ const Profile = () => {
                   disabled={loading}
                   className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 transition-all duration-200 disabled:opacity-50 shadow-md"
                 >
-                  {loading ? 'Enregistrement...' : 'Enregistrer'}
+                  {loading ? t('common.saving') : t('common.save')}
                 </button>
                 <button
                   type="button"
@@ -483,7 +483,7 @@ const Profile = () => {
                       : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  Annuler
+                  {t('common.cancel')}
                 </button>
               </div>
             </form>
@@ -492,7 +492,7 @@ const Profile = () => {
               <div className={`flex justify-between items-center pb-3 border-b ${isRTL ? 'flex-row-reverse' : ''} ${
                 darkMode ? 'border-gray-700' : 'border-gray-100'
               }`}>
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Prénom et nom</span>
+                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('profile.full_name')}</span>
                 <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   {displayUser?.first_name} {displayUser?.last_name}
                 </span>
@@ -500,48 +500,48 @@ const Profile = () => {
               <div className={`flex justify-between items-center pb-3 border-b ${isRTL ? 'flex-row-reverse' : ''} ${
                 darkMode ? 'border-gray-700' : 'border-gray-100'
               }`}>
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Adresse email</span>
+                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('profile.email')}</span>
                 <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'} flex items-center gap-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   {displayUser?.email}
-                  <i className="bi bi-patch-check-fill text-emerald-500 text-xs" title="Vérifié"></i>
+                  <i className="bi bi-patch-check-fill text-emerald-500 text-xs" title={t('common.verified')}></i>
                 </span>
               </div>
               <div className={`flex justify-between items-center pb-3 border-b ${isRTL ? 'flex-row-reverse' : ''} ${
                 darkMode ? 'border-gray-700' : 'border-gray-100'
               }`}>
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>CIN</span>
+                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('profile.cin')}</span>
                 <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {displayUser?.cin || 'Non renseigné'}
+                  {displayUser?.cin || t('profile.not_provided')}
                 </span>
               </div>
               <div className={`flex justify-between items-center pb-3 border-b ${isRTL ? 'flex-row-reverse' : ''} ${
                 darkMode ? 'border-gray-700' : 'border-gray-100'
               }`}>
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Téléphone</span>
+                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('profile.phone')}</span>
                 <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {displayUser?.phone || 'Non renseigné'}
+                  {displayUser?.phone || t('profile.not_provided')}
                 </span>
               </div>
               <div className={`flex justify-between items-center pb-3 border-b ${isRTL ? 'flex-row-reverse' : ''} ${
                 darkMode ? 'border-gray-700' : 'border-gray-100'
               }`}>
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Ville</span>
+                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('profile.city')}</span>
                 <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {displayUser?.city || 'Non renseignée'}
+                  {displayUser?.city || t('profile.not_provided')}
                 </span>
               </div>
               <div className={`flex justify-between items-start pb-3 border-b ${isRTL ? 'flex-row-reverse' : ''} ${
                 darkMode ? 'border-gray-700' : 'border-gray-100'
               }`}>
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Adresse</span>
+                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('profile.address')}</span>
                 <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'} ${isRTL ? 'text-left' : 'text-right'}`}>
-                  {displayUser?.address_line || 'Non renseignée'}
+                  {displayUser?.address_line || t('profile.not_provided')}
                 </span>
               </div>
               <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
-                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>Membre depuis</span>
+                <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('profile.member_since')}</span>
                 <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                  {displayUser?.created_at ? new Date(displayUser.created_at).toLocaleDateString('fr-FR') : 'Nouveau'}
+                  {displayUser?.created_at ? new Date(displayUser.created_at).toLocaleDateString('fr-FR') : t('common.new')}
                 </span>
               </div>
             </div>
@@ -556,7 +556,7 @@ const Profile = () => {
               darkMode ? 'text-white' : 'text-gray-900'
             }`}>
               <i className={`bi bi-shield-lock ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}></i>
-              Sécurité
+              {t('profile.security')}
             </h3>
 
             <div className="space-y-4">
@@ -564,9 +564,9 @@ const Profile = () => {
                 darkMode ? 'border-gray-700' : 'border-gray-100'
               }`}>
                 <div>
-                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Mot de passe</span>
+                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t('profile.password')}</span>
                   <p className={`text-xs mt-0.5 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                    Dernière modification: {user?.password_updated_at ? new Date(user.password_updated_at).toLocaleDateString('fr-FR') : 'Jamais'}
+                    {t('profile.last_modified')} {user?.password_updated_at ? new Date(user.password_updated_at).toLocaleDateString('fr-FR') : t('common.never')}
                   </p>
                 </div>
                 <button
@@ -577,7 +577,7 @@ const Profile = () => {
                       : 'text-orange-600 border border-orange-200 hover:bg-orange-50'
                   }`}
                 >
-                  Changer
+                  {t('common.change')}
                 </button>
               </div>
 
@@ -586,10 +586,10 @@ const Profile = () => {
               }`}>
                 <div>
                   <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                    Authentification à deux facteurs
+                    {t('profile.2fa')}
                   </span>
                   <p className={`text-xs mt-0.5 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                    Sécurisez votre compte
+                    {t('profile.2fa_desc')}
                   </p>
                 </div>
                 <button className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
@@ -597,15 +597,15 @@ const Profile = () => {
                     ? 'text-gray-400 border border-gray-600 hover:bg-gray-700'
                     : 'text-gray-600 border border-gray-300 hover:bg-gray-50'
                 }`}>
-                  Activer
+                  {t('common.enable')}
                 </button>
               </div>
 
               <div className={`flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
                 <div>
-                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Sessions actives</span>
+                  <span className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t('profile.active_sessions')}</span>
                   <p className={`text-xs mt-0.5 ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>
-                    Gérer vos appareils connectés
+                    {t('profile.sessions_desc')}
                   </p>
                 </div>
                 <button className={`px-3 py-1.5 text-xs font-medium rounded-lg transition-colors ${
@@ -613,7 +613,7 @@ const Profile = () => {
                     ? 'text-gray-400 border border-gray-600 hover:bg-gray-700'
                     : 'text-gray-600 border border-gray-300 hover:bg-gray-50'
                 }`}>
-                  Voir
+                  {t('common.view')}
                 </button>
               </div>
             </div>
@@ -631,7 +631,7 @@ const Profile = () => {
               darkMode ? 'border-gray-700' : 'border-gray-100'
             }`}>
               <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-                Changer le mot de passe
+                {t('profile.change_password')}
               </h3>
               <button
                 onClick={() => setShowPasswordModal(false)}
@@ -644,7 +644,7 @@ const Profile = () => {
               <div className="p-6 space-y-4">
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Mot de passe actuel
+                    {t('profile.current_password')}
                   </label>
                   <input
                     type="password"
@@ -660,7 +660,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Nouveau mot de passe
+                    {t('profile.new_password')}
                   </label>
                   <input
                     type="password"
@@ -676,7 +676,7 @@ const Profile = () => {
                 </div>
                 <div>
                   <label className={`block text-sm font-medium mb-1 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    Confirmer le nouveau mot de passe
+                    {t('profile.confirm_password')}
                   </label>
                   <input
                     type="password"
@@ -699,7 +699,7 @@ const Profile = () => {
                   disabled={loading}
                   className="flex-1 px-4 py-2 bg-orange-500 text-white rounded-xl text-sm font-semibold hover:bg-orange-600 transition-all duration-200 disabled:opacity-50 shadow-md"
                 >
-                  {loading ? 'Chargement...' : 'Confirmer'}
+                  {loading ? t('common.loading') : t('common.confirm')}
                 </button>
                 <button
                   type="button"
@@ -710,7 +710,7 @@ const Profile = () => {
                       : 'border border-gray-300 text-gray-700 hover:bg-gray-50'
                   }`}
                 >
-                  Annuler
+                  {t('common.cancel')}
                 </button>
               </div>
             </form>

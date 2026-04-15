@@ -31,7 +31,7 @@ const Notifications = () => {
       setNotifications(data || []);
     } catch (e) {
       console.error('Error fetching notifications:', e);
-      setError('Impossible de charger les notifications');
+      setError(t('notifications.error_loading'));
     } finally {
       setLoading(false);
     }
@@ -64,13 +64,13 @@ const Notifications = () => {
   };
 
   const deleteNotification = async (id) => {
-    if (!window.confirm('Supprimer cette notification ?')) return;
+    if (!window.confirm(t('notifications.delete_confirm'))) return;
     try {
       await api.delete(`/notifications/${id}`);
       setNotifications(notifications.filter(n => n.id !== id));
     } catch (e) {
       console.error('Error deleting notification:', e);
-      alert('Erreur lors de la suppression');
+      alert(t('notifications.delete_error'));
     }
   };
 
@@ -92,7 +92,7 @@ const Notifications = () => {
             onClick={fetchNotifications}
             className="mt-4 px-4 py-2 bg-orange-500 text-white rounded-xl hover:bg-orange-600 transition-all duration-200"
           >
-            Réessayer
+            {t('common.retry')}
           </button>
         </div>
       </div>
@@ -111,8 +111,8 @@ const Notifications = () => {
           </h1>
           <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
             {unreadCount === 0 
-              ? "Toutes vos notifications sont lues" 
-              : `Vous avez ${unreadCount} notification${unreadCount !== 1 ? 's' : ''} non lue${unreadCount !== 1 ? 's' : ''}`
+              ? t('notifications.all_read') 
+              : t('notifications.unread_desc', { count: unreadCount })
             }
           </p>
         </div>
@@ -127,7 +127,7 @@ const Notifications = () => {
                   : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
               }`}
             >
-              Tout marquer comme lu
+              {t('notifications.mark_all_read')}
             </button>
           )}
         </div>
@@ -138,16 +138,16 @@ const Notifications = () => {
         {notifications.length === 0 ? (
           <div className="p-12 text-center">
             <i className={`bi bi-bell-slash text-5xl ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}></i>
-            <h3 className={`mt-4 text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>Aucune notification</h3>
-            <p className={`mt-1 text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>Vous n'avez reçu aucune notification pour le moment.</p>
+            <h3 className={`mt-4 text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>{t('notifications.empty')}</h3>
+            <p className={`mt-1 text-sm ${darkMode ? 'text-gray-500' : 'text-gray-500'}`}>{t('notifications.empty_desc')}</p>
           </div>
         ) : (
           <ul className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-100'}`}>
             {notifications.map((notif) => {
               const isUnread = !notif.read_at;
               const notificationData = notif.data || {};
-              const notificationTitle = notificationData.title || 'Nouvelle notification';
-              const notificationMessage = notificationData.message || 'Aucun contenu';
+              const notificationTitle = notificationData.title || t('notifications.new');
+              const notificationMessage = notificationData.message || t('notifications.no_content');
               
               return (
                 <li 
@@ -193,7 +193,7 @@ const Notifications = () => {
                                 <span className={`px-2 py-0.5 text-xs rounded-full ${
                                   darkMode ? 'bg-orange-900/50 text-orange-400' : 'bg-orange-100 text-orange-700'
                                 }`}>
-                                  Nouveau
+                                  {t('common.new')}
                                 </span>
                               )}
                             </div>
@@ -222,7 +222,7 @@ const Notifications = () => {
                                 darkMode ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-800'
                               }`}
                             >
-                              Marquer comme lue
+                              {t('notifications.mark_read')}
                             </button>
                           )}
                           {/* <button 

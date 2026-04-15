@@ -52,6 +52,17 @@ const Dashboard = () => {
     return () => observer.disconnect();
   }, []);
 
+  const getRoleLabel = (role) => {
+    const roles = {
+      stagiaire: t('dashboard.types.stage', 'Stagiaire'),
+      journaliste: t('dashboard.types.presse', 'Journaliste'),
+      chercheur: t('dashboard.types.bibliotheque', 'Chercheur'),
+      ecole: t('dashboard.types.visite', 'Établissement scolaire'),
+      admin: t('profile.roles.admin', 'Administrateur')
+    };
+    return roles[role] || role;
+  };
+
   const getDemandeType = () => {
     const roleTypeMap = {
       stagiaire: 'stage',
@@ -573,7 +584,7 @@ const Dashboard = () => {
         }`}>
           <div className={`px-5 py-4 border-b ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
             <h2 className={`text-base font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-              {t('profile')}
+              {t('sidebar_profile')}
             </h2>
           </div>
           <div className="p-5">
@@ -588,7 +599,7 @@ const Dashboard = () => {
                   {user?.first_name} {user?.last_name}
                 </h3>
                 <p className={`text-sm capitalize ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}>
-                  {user?.role}
+                  {getRoleLabel(user?.role)}
                 </p>
               </div>
             </div>
@@ -768,7 +779,7 @@ const Dashboard = () => {
                   {submitLoading ? (
                     <>
                       <i className="bi bi-hourglass-split animate-spin"></i>
-                      {t('common.sending')}
+                      {t('common.loading')}
                     </>
                   ) : (
                     <>

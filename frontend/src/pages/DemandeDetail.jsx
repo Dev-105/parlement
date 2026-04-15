@@ -66,10 +66,10 @@ const DemandeDetail = () => {
 
   const getStatusLabel = (status) => {
     const labels = {
-      pending: 'En attente',
-      in_review: 'En révision',
-      accepted: 'Acceptée',
-      rejected: 'Refusée'
+      pending: t('demandes.status.pending'),
+      in_review: t('demandes.status.in_review'),
+      accepted: t('demandes.status.accepted'),
+      rejected: t('demandes.status.rejected')
     };
     return labels[status] || status;
   };
@@ -109,7 +109,7 @@ const DemandeDetail = () => {
       window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
       console.error('Error downloading file:', err);
-      alert('Impossible de télécharger le fichier.');
+      alert(t('demandes.download_error'));
     }
   };
 
@@ -127,7 +127,7 @@ const DemandeDetail = () => {
         }`}
       >
         <i className="bi bi-file-earmark-text"></i>
-        Télécharger {fileName}
+        {t('demandes.download', { file: fileName })}
       </button>
     );
   };
@@ -140,11 +140,11 @@ const DemandeDetail = () => {
     
     if (demande.type === 'stage') {
       const stageFields = [
-        { key: 'school_name', label: 'Établissement' },
-        { key: 'field_of_study', label: 'Filière d\'étude' },
-        { key: 'start_date', label: 'Date de début', format: (v) => v ? new Date(v).toLocaleDateString('fr-FR') : 'Non spécifiée' },
-        { key: 'end_date', label: 'Date de fin', format: (v) => v ? new Date(v).toLocaleDateString('fr-FR') : 'Non spécifiée' },
-        { key: 'motivation_letter', label: 'Lettre de motivation' },
+        { key: 'school_name', label: t('demandes.fields.school_name') },
+        { key: 'field_of_study', label: t('demandes.fields.field_of_study') },
+        { key: 'start_date', label: t('demandes.fields.start_date'), format: (v) => v ? new Date(v).toLocaleDateString('fr-FR') : t('demandes.not_specified') },
+        { key: 'end_date', label: t('demandes.fields.end_date'), format: (v) => v ? new Date(v).toLocaleDateString('fr-FR') : t('demandes.not_specified') },
+        { key: 'motivation_letter', label: t('demandes.fields.motivation_letter') },
       ];
       
       stageFields.forEach(field => {
@@ -165,9 +165,9 @@ const DemandeDetail = () => {
     }
     else if (demande.type === 'presse') {
       const presseFields = [
-        { key: 'media_name', label: 'Nom du média' },
-        { key: 'press_card_number', label: 'N° Carte de presse' },
-        { key: 'organization', label: 'Organisation' },
+        { key: 'media_name', label: t('demandes.fields.media_name') },
+        { key: 'press_card_number', label: t('demandes.fields.press_card_number') },
+        { key: 'organization', label: t('demandes.fields.organization') },
       ];
       
       presseFields.forEach(field => {
@@ -181,18 +181,18 @@ const DemandeDetail = () => {
       
       if (details.supporting_document) {
         formattedDetails.push({
-          label: 'Document justificatif',
-          value: renderFileLink(details.supporting_document, 'document justificatif', 'supporting_document')
+          label: t('demandes.fields.supporting_document'),
+          value: renderFileLink(details.supporting_document, t('demandes.fields.supporting_document'), 'supporting_document')
         });
       }
     }
     else if (demande.type === 'bibliotheque') {
       const bibliothequeFields = [
-        { key: 'research_topic', label: 'Sujet de recherche' },
-        { key: 'institution', label: 'Institution' },
-        { key: 'visit_date', label: 'Date de visite', format: (v) => v ? new Date(v).toLocaleDateString('fr-FR') : 'Non spécifiée' },
-        { key: 'duration', label: 'Durée' },
-        { key: 'purpose', label: 'Objectif de la recherche' },
+        { key: 'research_topic', label: t('demandes.fields.research_topic') },
+        { key: 'institution', label: t('demandes.fields.institution') },
+        { key: 'visit_date', label: t('demandes.fields.visit_date'), format: (v) => v ? new Date(v).toLocaleDateString('fr-FR') : t('demandes.not_specified') },
+        { key: 'duration', label: t('demandes.fields.duration') },
+        { key: 'purpose', label: t('demandes.fields.purpose') },
       ];
       
       bibliothequeFields.forEach(field => {
@@ -206,12 +206,12 @@ const DemandeDetail = () => {
     }
     else if (demande.type === 'visite') {
       const visiteFields = [
-        { key: 'school_name', label: 'Établissement' },
-        { key: 'number_of_students', label: 'Nombre d\'élèves' },
-        { key: 'grade_level', label: 'Niveau' },
-        { key: 'visit_date', label: 'Date de visite', format: (v) => v ? new Date(v).toLocaleDateString('fr-FR') : 'Non spécifiée' },
-        { key: 'supervisor_name', label: 'Superviseur' },
-        { key: 'phone', label: 'Téléphone' },
+        { key: 'school_name', label: t('demandes.fields.school_name') },
+        { key: 'number_of_students', label: t('demandes.fields.number_of_students') },
+        { key: 'grade_level', label: t('demandes.fields.grade_level') },
+        { key: 'visit_date', label: t('demandes.fields.visit_date'), format: (v) => v ? new Date(v).toLocaleDateString('fr-FR') : t('demandes.not_specified') },
+        { key: 'supervisor_name', label: t('demandes.fields.supervisor_name') },
+        { key: 'phone', label: t('demandes.fields.phone') },
       ];
       
       visiteFields.forEach(field => {
@@ -239,10 +239,10 @@ const DemandeDetail = () => {
 
   const getTypeLabel = (type) => {
     const labels = {
-      stage: 'Stage',
-      presse: 'Presse',
-      bibliotheque: 'Bibliothèque',
-      visite: 'Visite'
+      stage: t('dashboard.types.stage', 'Stage'),
+      presse: t('dashboard.types.presse', 'Presse'),
+      bibliotheque: t('dashboard.types.bibliotheque', 'Bibliothèque'),
+      visite: t('dashboard.types.visite', 'Visite')
     };
     return labels[type] || type;
   };
@@ -262,13 +262,13 @@ const DemandeDetail = () => {
       }`}>
         <i className={`bi bi-exclamation-circle text-4xl ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}></i>
         <h3 className={`mt-2 text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-          Demande introuvable
+          {t('demandes.not_found')}
         </h3>
         <button 
           onClick={() => navigate('/demandes')} 
           className={`mt-4 transition-colors ${darkMode ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-800'}`}
         >
-          Retour aux demandes
+          {t('demandes.back_to_list')}
         </button>
       </div>
     );
@@ -293,10 +293,10 @@ const DemandeDetail = () => {
         </button>
         <div>
           <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
-            Détails de la demande #{demande.id}
+            {t('demandes.detail_title', { id: demande.id })}
           </h1>
           <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            Créée le {new Date(demande.created_at).toLocaleDateString('fr-FR')}
+            {t('demandes.created_at', { date: new Date(demande.created_at).toLocaleDateString('fr-FR') })}
           </p>
         </div>
       </div>
@@ -321,7 +321,7 @@ const DemandeDetail = () => {
                 darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'
               }`}>
                 <i className={`${getTypeIcon(demande.type)} text-xs`}></i>
-                Type: {getTypeLabel(demande.type)}
+                {t('demandes.type_label', { type: getTypeLabel(demande.type) })}
               </span>
             </div>
             
@@ -333,14 +333,14 @@ const DemandeDetail = () => {
                 <div className={`flex items-center gap-2 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
                   <i className={`bi bi-person-badge ${darkMode ? 'text-orange-400' : 'text-orange-600'} text-lg`}></i>
                   <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
-                    Informations du demandeur
+                    {t('demandes.applicant_info')}
                   </span>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
                     <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <i className={`bi bi-person ${darkMode ? 'text-gray-500' : 'text-gray-500'} text-sm w-5`}></i>
-                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Nom complet:</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{t('profile.full_name')}:</span>
                       <button
                         onClick={() => navigate(`/admin/users/${demande.user.id}`)}
                         className={`text-sm font-medium transition-colors ${
@@ -352,20 +352,20 @@ const DemandeDetail = () => {
                     </div>
                     <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <i className="bi bi-envelope text-gray-500 text-sm w-5"></i>
-                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Email:</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{t('profile.email')}:</span>
                       <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.email}</span>
                     </div>
                     {demande.user.cin && (
                       <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <i className="bi bi-person-badge text-gray-500 text-sm w-5"></i>
-                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>CIN:</span>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{t('profile.cin')}:</span>
                         <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.cin}</span>
                       </div>
                     )}
                     {demande.user.phone && (
                       <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <i className="bi bi-telephone text-gray-500 text-sm w-5"></i>
-                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Téléphone:</span>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{t('profile.phone')}:</span>
                         <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.phone}</span>
                       </div>
                     )}
@@ -373,19 +373,19 @@ const DemandeDetail = () => {
                   <div>
                     <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <i className="bi bi-person-badge text-gray-500 text-sm w-5"></i>
-                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Rôle:</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{t('profile.role')}:</span>
                       <span className={`capitalize text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.role}</span>
                     </div>
                     {demande.user.city && (
                       <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <i className="bi bi-geo-alt text-gray-500 text-sm w-5"></i>
-                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Ville:</span>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{t('profile.city')}:</span>
                         <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.city}</span>
                       </div>
                     )}
                     <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <i className="bi bi-calendar text-gray-500 text-sm w-5"></i>
-                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Membre depuis:</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>{t('profile.member_since')}:</span>
                       <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                         {new Date(demande.user.created_at).toLocaleDateString('fr-FR')}
                       </span>
@@ -407,10 +407,10 @@ const DemandeDetail = () => {
                       ? 'bg-blue-900/30 text-blue-400 hover:bg-blue-900/50 border border-blue-800'
                       : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
                   }`}
-                  title="Mettre en révision"
+                  title={t('demandes.actions.review')}
                 >
                   <i className="bi bi-clock-history mr-1"></i>
-                  Réviser
+                  {t('demandes.actions.review')}
                 </button>
               )}
               {demande.status !== 'accepted' && (
@@ -421,10 +421,10 @@ const DemandeDetail = () => {
                       ? 'bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50 border border-emerald-800'
                       : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                   }`}
-                  title="Accepter"
+                  title={t('demandes.actions.accept')}
                 >
                   <i className="bi bi-check-lg mr-1"></i>
-                  Accepter
+                  {t('demandes.actions.accept')}
                 </button>
               )}
               {demande.status !== 'rejected' && (
@@ -435,10 +435,10 @@ const DemandeDetail = () => {
                       ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50 border border-red-800'
                       : 'bg-red-50 text-red-700 hover:bg-red-100'
                   }`}
-                  title="Refuser"
+                  title={t('demandes.actions.reject')}
                 >
                   <i className="bi bi-x-lg mr-1"></i>
-                  Refuser
+                  {t('demandes.actions.reject')}
                 </button>
               )}
             </div>
@@ -453,7 +453,7 @@ const DemandeDetail = () => {
               darkMode ? 'text-gray-400' : 'text-gray-500'
             }`}>
               <i className={`bi bi-chat-text ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}></i>
-              Message
+              {t('dashboard.form.message_label')}
             </h3>
             <div className={`p-5 rounded-xl border ${
               darkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-100'
@@ -471,7 +471,7 @@ const DemandeDetail = () => {
                 darkMode ? 'text-gray-400' : 'text-gray-500'
               }`}>
                 <i className={`bi bi-info-circle ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}></i>
-                Informations spécifiques
+                {t('demandes.specific_info')}
               </h3>
               <div className={`grid sm:grid-cols-2 gap-y-4 gap-x-8 p-5 rounded-xl border ${
                 darkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-100'
