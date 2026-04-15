@@ -116,7 +116,7 @@ const Login = () => {
                   type="email"
                   name="email"
                   required
-                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-gray-900 transition-all duration-200 bg-gray-50 hover:bg-white"
+                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black transition-all duration-200 bg-gray-50 hover:bg-white"
                   placeholder="exemple@parlement.ma"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}

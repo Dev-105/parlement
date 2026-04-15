@@ -179,7 +179,7 @@ const Register = () => {
                   <input
                     required
                     type="text"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.first_name}
                     onChange={e => setFormData({...formData, first_name: e.target.value})}
                   />
@@ -189,7 +189,7 @@ const Register = () => {
                   <input
                     required
                     type="text"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.last_name}
                     onChange={e => setFormData({...formData, last_name: e.target.value})}
                   />
@@ -199,7 +199,7 @@ const Register = () => {
                   <input
                     required
                     type="text"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.cin}
                     onChange={e => setFormData({...formData, cin: e.target.value})}
                   />
@@ -212,7 +212,7 @@ const Register = () => {
                   <input
                     required
                     type="email"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.email}
                     onChange={e => setFormData({...formData, email: e.target.value})}
                   />
@@ -221,7 +221,7 @@ const Register = () => {
                   <label className="block text-xs font-semibold text-gray-900 mb-2">Téléphone</label>
                   <input
                     type="tel"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.phone}
                     onChange={e => setFormData({...formData, phone: e.target.value})}
                   />
@@ -235,7 +235,7 @@ const Register = () => {
                     required
                     type="password"
                     minLength={8}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.password}
                     onChange={e => setFormData({...formData, password: e.target.value})}
                   />
@@ -246,7 +246,7 @@ const Register = () => {
                     required
                     type="password"
                     minLength={8}
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.password_confirmation}
                     onChange={e => setFormData({...formData, password_confirmation: e.target.value})}
                   />
@@ -258,7 +258,7 @@ const Register = () => {
                   <label className="block text-xs font-semibold text-gray-900 mb-2">Date de naissance</label>
                   <input
                     type="date"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.date_of_birth}
                     onChange={e => setFormData({...formData, date_of_birth: e.target.value})}
                   />
@@ -266,7 +266,7 @@ const Register = () => {
                 <div>
                   <label className="block text-xs font-semibold text-gray-900 mb-2">Nationalité</label>
                   <select
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.nationality}
                     onChange={e => setFormData({...formData, nationality: e.target.value})}
                   >
@@ -281,7 +281,7 @@ const Register = () => {
                   <label className="block text-xs font-semibold text-gray-900 mb-2">Pays</label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.country}
                     onChange={e => setFormData({...formData, country: e.target.value})}
                   />
@@ -290,7 +290,7 @@ const Register = () => {
                   <label className="block text-xs font-semibold text-gray-900 mb-2">Ville</label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.city}
                     onChange={e => setFormData({...formData, city: e.target.value})}
                   />
@@ -301,7 +301,7 @@ const Register = () => {
                 <label className="block text-xs font-semibold text-gray-900 mb-2">Adresse</label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                  className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                   value={formData.address_line}
                   onChange={e => setFormData({...formData, address_line: e.target.value})}
                 />
@@ -314,7 +314,7 @@ const Register = () => {
                   </label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.school_name}
                     onChange={e => setFormData({...formData, school_name: e.target.value})}
                   />
@@ -326,7 +326,7 @@ const Register = () => {
                   <label className="block text-xs font-semibold text-gray-900 mb-2">Organe de presse</label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.press_info}
                     onChange={e => setFormData({...formData, press_info: e.target.value})}
                   />
@@ -338,7 +338,7 @@ const Register = () => {
                   <label className="block text-xs font-semibold text-gray-900 mb-2">Sujet de recherche</label>
                   <input
                     type="text"
-                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
+                    className="w-full px-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-black text-sm transition-all duration-200 bg-gray-50 hover:bg-white"
                     value={formData.research_topic}
                     onChange={e => setFormData({...formData, research_topic: e.target.value})}
                   />
