@@ -4,17 +4,13 @@ import { Link, useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 
-const Navbar = ({ setSidebarOpen }) => {
-  const { i18n } = useTranslation();
+const Navbar = ({ setSidebarOpen, darkMode, setDarkMode }) => {
+  const { i18n, t } = useTranslation();
   const navigate = useNavigate();
   const { user, logout } = useContext(AuthContext);
-  const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem('theme') === 'dark' || 
-    (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
-  );
+  const isRTL = i18n.language === 'ar';
 
   useEffect(() => {
     if (user) {
@@ -28,7 +24,7 @@ const Navbar = ({ setSidebarOpen }) => {
       };
       
       fetchNotifications();
-      const interval = setInterval(fetchNotifications, 60000); // Check every minute
+      const interval = setInterval(fetchNotifications, 60000);
       return () => clearInterval(interval);
     }
   }, [user]);
@@ -44,18 +40,10 @@ const Navbar = ({ setSidebarOpen }) => {
 
   const unreadCount = notifications.filter(n => !n.read_at).length;
 
-  useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
-  }, [darkMode]);
-
   const toggleLang = (lng) => {
     i18n.changeLanguage(lng);
+    // Close any open dropdowns
+    setShowNotifications(false);
   };
 
   const handleLogout = async () => {
@@ -71,36 +59,52 @@ const Navbar = ({ setSidebarOpen }) => {
   ];
 
   return (
-    <header className="sticky top-0 z-30 w-full bg-white border-b border-gray-200 shadow-sm">
+    <header className={`sticky top-0 z-30 w-full transition-colors duration-300 ${
+      darkMode 
+        ? 'bg-gray-800 border-b border-gray-700' 
+        : 'bg-white border-b border-gray-200'
+    } shadow-sm`}>
       <div className="flex items-center justify-between px-4 h-16">
         {/* Left section - Menu button & Logo */}
-        <div className="flex items-center gap-3">
+        <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
           <button 
-            className="md:hidden text-gray-500 hover:text-navy-800 transition-colors"
+            className={`lg:hidden transition-colors ${
+              darkMode ? 'text-gray-400 hover:text-orange-400' : 'text-gray-500 hover:text-orange-500'
+            }`}
             onClick={() => setSidebarOpen(true)}
           >
             <i className="bi bi-list text-2xl"></i>
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-navy-800 rounded flex items-center justify-center">
-              <i className="bi bi-bank2 text-white text-sm"></i>
-            </div>
-            <span className="text-lg font-bold text-navy-800 tracking-tight hidden sm:inline">PARLEMENT</span>
+          <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <img 
+              src="/royaumeDuMarocLogo.png" 
+              alt="Logo" 
+              className="h-8 w-auto object-contain"
+            />
+            <span className={`text-lg font-bold tracking-tight hidden sm:inline ${
+              darkMode ? 'text-orange-400' : 'text-orange-500'
+            }`}>PARLEMENT</span>
           </div>
         </div>
 
         {/* Right section - Actions */}
-        <div className="flex items-center gap-2">
+        <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
           {/* Language Switcher */}
-          <div className="hidden md:flex items-center gap-1 border-r border-gray-200 pr-3">
+          <div className={`hidden md:flex items-center gap-1 pr-3 ${isRTL ? 'border-l' : 'border-r'} ${
+            darkMode ? 'border-gray-700' : 'border-gray-200'
+          }`}>
             {languages.map(lang => (
               <button 
                 key={lang.code}
                 onClick={() => toggleLang(lang.code)}
-                className={`relative text-xs font-medium px-2 py-1 rounded transition-all ${
+                className={`relative text-xs font-medium px-2 py-1 rounded-lg transition-all ${
                   i18n.language === lang.code 
-                    ? 'text-navy-800 bg-navy-50' 
-                    : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
+                    ? darkMode
+                      ? 'text-orange-400 bg-orange-900/30'
+                      : 'text-orange-600 bg-orange-50'
+                    : darkMode
+                      ? 'text-gray-400 hover:text-gray-300 hover:bg-gray-700'
+                      : 'text-gray-500 hover:text-gray-700 hover:bg-gray-100'
                 }`}
                 title={lang.name}
               >
@@ -112,8 +116,12 @@ const Navbar = ({ setSidebarOpen }) => {
           {/* Theme Toggle */}
           <button 
             onClick={() => setDarkMode(!darkMode)}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-navy-800 transition-colors"
-            title={darkMode ? 'Mode clair' : 'Mode sombre'}
+            className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
+              darkMode 
+                ? 'text-gray-400 hover:text-orange-400 hover:bg-gray-700' 
+                : 'text-gray-500 hover:text-orange-500 hover:bg-gray-100'
+            }`}
+            title={darkMode ? t('navbar_theme_light') : t('navbar_theme_dark')}
           >
             {darkMode ? <i className="bi bi-sun-fill text-base"></i> : <i className="bi bi-moon-fill text-base"></i>}
           </button>
@@ -121,16 +129,17 @@ const Navbar = ({ setSidebarOpen }) => {
           {/* Notifications Dropdown */}
           <div className="relative">
             <button 
-              onClick={() => {
-                setShowNotifications(!showNotifications);
-                setShowUserMenu(false);
-              }}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 hover:text-navy-800 transition-colors relative"
-              title="Notifications"
+              onClick={() => setShowNotifications(!showNotifications)}
+              className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors relative ${
+                darkMode 
+                  ? 'text-gray-400 hover:text-orange-400 hover:bg-gray-700' 
+                  : 'text-gray-500 hover:text-orange-500 hover:bg-gray-100'
+              }`}
+              title={t('navbar_notifications')}
             >
               <i className="bi bi-bell-fill text-base"></i>
               {unreadCount > 0 && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full"></span>
               )}
             </button>
 
@@ -140,44 +149,74 @@ const Navbar = ({ setSidebarOpen }) => {
                   className="fixed inset-0 z-10"
                   onClick={() => setShowNotifications(false)}
                 ></div>
-                <div className="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg border border-gray-100 z-20 overflow-hidden">
-                  <div className="p-3 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
-                    <span className="text-sm font-semibold text-gray-900">Notifications</span>
-                    {unreadCount > 0 && <span className="text-xs bg-red-100 text-red-600 px-2 py-0.5 rounded-full">{unreadCount} nouvelles</span>}
+                <div className={`absolute ${
+                  isRTL ? 'left-0' : 'right-0'
+                } mt-2 w-80 rounded-xl shadow-lg border z-20 overflow-hidden ${
+                  darkMode 
+                    ? 'bg-gray-800 border-gray-700' 
+                    : 'bg-white border-gray-200'
+                }`}>
+                  <div className={`p-3 border-b flex justify-between items-center ${
+                    darkMode 
+                      ? 'bg-gray-700/50 border-gray-700' 
+                      : 'bg-orange-50 border-gray-200'
+                  }`}>
+                    <span className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                      {t('navbar_notifications')}
+                    </span>
+                    {unreadCount > 0 && (
+                      <span className="text-xs bg-orange-500 text-white px-2 py-0.5 rounded-full">
+                        {unreadCount} nouvelles
+                      </span>
+                    )}
                   </div>
                   <div className="max-h-96 overflow-y-auto">
                     {notifications.length === 0 ? (
-                      <div className="p-4 text-center text-sm text-gray-500">
-                        Aucune notification
+                      <div className={`p-4 text-center text-sm ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {t('notifications_empty')}
                       </div>
                     ) : (
                       notifications.slice(0, 5).map(notif => (
                         <div 
                           key={notif.id} 
-                          className={`p-4 border-b border-gray-50 hover:bg-gray-50 transition-colors cursor-pointer ${!notif.read_at ? 'bg-blue-50/50' : ''}`}
+                          className={`p-4 border-b transition-colors cursor-pointer ${
+                            darkMode 
+                              ? 'border-gray-700 hover:bg-gray-700/50'
+                              : 'border-gray-100 hover:bg-orange-50'
+                          } ${!notif.read_at ? (darkMode ? 'bg-orange-900/20' : 'bg-orange-50/30') : ''}`}
                           onClick={() => {
                             if (!notif.read_at) markAsRead(notif.id);
                           }}
                         >
-                          <div className="flex justify-between items-start mb-1">
-                            <span className="text-sm font-semibold text-gray-900">{notif.data?.title || 'Notification'}</span>
-                            {!notif.read_at && <span className="w-2 h-2 bg-blue-600 rounded-full mt-1"></span>}
+                          <div className={`flex justify-between items-start mb-1 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                            <span className={`text-sm font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                              {notif.data?.title || t('notification_default')}
+                            </span>
+                            {!notif.read_at && <span className="w-2 h-2 bg-orange-500 rounded-full mt-1"></span>}
                           </div>
-                          <p className="text-sm text-gray-600 mb-2 truncate">{notif.data?.message}</p>
-                          <span className="text-xs text-gray-400">
+                          <p className={`text-sm mb-2 truncate ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                            {notif.data?.message}
+                          </p>
+                          <span className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
                             {new Date(notif.created_at).toLocaleDateString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
                           </span>
                         </div>
                       ))
                     )}
                   </div>
-                  <div className="p-2 border-t border-gray-100 bg-gray-50 text-center">
+                  <div className={`p-2 border-t text-center ${
+                    darkMode 
+                      ? 'bg-gray-700/50 border-gray-700' 
+                      : 'bg-gray-50 border-gray-200'
+                  }`}>
                     <Link
                       to="/notifications"
-                      className="text-xs font-medium text-navy-800 hover:text-navy-900 transition-colors"
+                      className={`text-xs font-medium transition-colors ${
+                        darkMode ? 'text-orange-400 hover:text-orange-300' : 'text-orange-500 hover:text-orange-600'
+                      }`}
                       onClick={() => setShowNotifications(false)}
                     >
-                      Voir toutes les notifications
+                      {t('navbar_view_all_notifications')}
                     </Link>
                   </div>
                 </div>
@@ -185,95 +224,21 @@ const Navbar = ({ setSidebarOpen }) => {
             )}
           </div>
 
-          {/* User Profile Dropdown */}
-          <div className="relative">
+          {/* Simple User Avatar */}
+          <div className={`ml-2 pl-2 ${isRTL ? 'mr-2 pr-2 border-r' : 'ml-2 pl-2 border-l'} ${
+            darkMode ? 'border-gray-700' : 'border-gray-200'
+          }`}>
             <button
-              onClick={() => {
-                setShowUserMenu(!showUserMenu);
-                setShowNotifications(false);
-              }}
-              className="flex items-center gap-2 ml-2 pl-2 border-l border-gray-200 hover:opacity-80 transition-opacity"
+              onClick={() => navigate('/profile')}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
             >
-              <div className="hidden md:flex flex-col text-right">
-                <span className="text-sm font-semibold text-gray-900 leading-tight">
-                  {user?.first_name || user?.name || 'Utilisateur'}
-                </span>
-                <span className="text-xs text-gray-500 capitalize">{user?.role || 'Invité'}</span>
+              <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
+                {((user?.first_name?.charAt(0) || user?.name?.charAt(0) || 'U')).toUpperCase()}
               </div>
-              <div className="relative">
-                <div className="w-9 h-9 bg-navy-800 rounded-full flex items-center justify-center text-white font-semibold text-sm shadow-sm">
-                  {((user?.first_name?.charAt(0) || user?.name?.charAt(0) || 'U')).toUpperCase()}
-                </div>
-                <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-emerald-500 rounded-full border-2 border-white"></div>
-              </div>
-              <i className={`bi bi-chevron-down text-gray-400 text-xs transition-transform ${showUserMenu ? 'rotate-180' : ''}`}></i>
             </button>
-
-            {/* Dropdown Menu */}
-            {showUserMenu && (
-              <>
-                <div 
-                  className="fixed inset-0 z-10"
-                  onClick={() => setShowUserMenu(false)}
-                ></div>
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg border border-gray-100 z-20">
-                  <div className="p-3 border-b border-gray-100">
-                    <p className="text-sm font-semibold text-gray-900">
-                      {user?.first_name} {user?.last_name}
-                    </p>
-                    <p className="text-xs text-gray-500 mt-0.5">{user?.email}</p>
-                    <p className="text-xs text-navy-800 mt-1 capitalize">
-                      <span className="inline-block w-1.5 h-1.5 bg-navy-800 rounded-full mr-1"></span>
-                      {user?.role}
-                    </p>
-                  </div>
-                  <div className="py-1">
-                    <Link
-                      to="/dashboard"
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <i className="bi bi-grid-3x3-gap-fill text-gray-400 text-sm"></i>
-                      Tableau de bord
-                    </Link>
-                    <Link
-                      to="/profile"
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <i className="bi bi-person-circle text-gray-400 text-sm"></i>
-                      Mon profil
-                    </Link>
-                    <Link
-                      to="/demandes"
-                      className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                      onClick={() => setShowUserMenu(false)}
-                    >
-                      <i className="bi bi-file-text text-gray-400 text-sm"></i>
-                      Mes demandes
-                    </Link>
-                    <hr className="my-1 border-gray-100" />
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center gap-3 w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                    >
-                      <i className="bi bi-box-arrow-right text-red-500 text-sm"></i>
-                      Déconnexion
-                    </button>
-                  </div>
-                </div>
-              </>
-            )}
           </div>
         </div>
       </div>
-
-      <style jsx>{`
-        .bg-navy-50 { background-color: #e8edf5; }
-        .bg-navy-800 { background-color: #0f2b4d; }
-        .text-navy-800 { color: #0f2b4d; }
-        .hover\\:text-navy-800:hover { color: #0f2b4d; }
-      `}</style>
     </header>
   );
 };

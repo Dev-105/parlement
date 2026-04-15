@@ -3,10 +3,11 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { AuthContext } from '../context/AuthContext';
 
-const Sidebar = ({ isOpen, setIsOpen }) => {
-  const { t } = useTranslation();
+const Sidebar = ({ isOpen, setIsOpen, darkMode }) => {
+  const { t, i18n } = useTranslation();
   const { user, logout } = useContext(AuthContext);
   const navigate = useNavigate();
+  const isRTL = i18n?.language === 'ar';
 
   const handleLogout = async () => {
     await logout();
@@ -20,10 +21,10 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
   };
 
   const navLinks = [
-    { to: '/dashboard', icon: 'bi-grid-3x3-gap-fill', label: 'Tableau de bord' },
-    { to: '/notifications', icon: 'bi-bell', label: 'Notifications' },
-    { to: '/demandes', icon: 'bi-file-earmark-text', label: 'Mes demandes' },
-    { to: '/profile', icon: 'bi-person', label: 'Mon profil' },
+    { to: '/dashboard', icon: 'bi-grid-3x3-gap-fill', label: t('sidebar_dashboard') },
+    { to: '/notifications', icon: 'bi-bell', label: t('sidebar_notifications') },
+    { to: '/demandes', icon: 'bi-file-earmark-text', label: t('sidebar_requests') },
+    { to: '/profile', icon: 'bi-person', label: t('sidebar_profile') },
   ];
 
   return (
@@ -36,20 +37,33 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
 
       {/* Sidebar */}
       <aside 
-        className={`fixed lg:sticky top-0 left-0 z-50 w-64 h-screen bg-navy-800 text-white transition-transform duration-300 ease-in-out flex flex-col shadow-xl ${
+        className={`fixed lg:sticky top-0 left-0 z-50 w-64 h-screen transition-all duration-300 ease-in-out flex flex-col shadow-xl ${
           isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+        } ${
+          darkMode 
+            ? 'bg-gray-800 border-r border-gray-700' 
+            : 'bg-white border-r border-gray-200'
         }`}
+        style={{ direction: isRTL ? 'rtl' : 'ltr' }}
       >
         {/* Logo Section */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-navy-700">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center">
-              <i className="bi bi-bank2 text-white text-base"></i>
-            </div>
-            <span className="text-lg font-bold tracking-tight text-white">PARLEMENT</span>
+        <div className={`flex items-center justify-between px-5 py-4 border-b ${
+          darkMode ? 'border-gray-700' : 'border-gray-200'
+        }`}>
+          <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <img 
+              src="/royaumeDuMarocLogo.png" 
+              alt="Logo" 
+              className="h-8 w-auto object-contain"
+            />
+            <span className={`text-lg font-bold tracking-tight ${
+              darkMode ? 'text-orange-400' : 'text-orange-500'
+            }`}>PARLEMENT</span>
           </div>
           <button 
-            className="lg:hidden text-navy-300 hover:text-white transition-colors"
+            className={`lg:hidden transition-colors ${
+              darkMode ? 'text-gray-400 hover:text-orange-400' : 'text-gray-400 hover:text-orange-500'
+            }`}
             onClick={() => setIsOpen(false)}
           >
             <i className="bi bi-x-lg text-lg"></i>
@@ -57,16 +71,26 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         </div>
 
         {/* User Info Section */}
-        <div className="px-5 py-4 border-b border-navy-700">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-navy-700 flex items-center justify-center border border-navy-600">
-              <span className="text-sm font-semibold text-white">{getInitials()}</span>
+        <div className={`px-5 py-4 border-b ${
+          darkMode ? 'border-gray-700' : 'border-gray-200'
+        }`}>
+          <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+              darkMode ? 'bg-orange-900/30 border border-orange-700' : 'bg-orange-100 border border-orange-200'
+            }`}>
+              <span className={`text-sm font-semibold ${
+                darkMode ? 'text-orange-400' : 'text-orange-600'
+              }`}>{getInitials()}</span>
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-white truncate">
+            <div className={`flex-1 min-w-0 ${isRTL ? 'text-right' : 'text-left'}`}>
+              <p className={`text-sm font-semibold truncate ${
+                darkMode ? 'text-white' : 'text-gray-900'
+              }`}>
                 {user?.first_name} {user?.last_name}
               </p>
-              <p className="text-xs text-navy-300 capitalize">{user?.role || 'Utilisateur'}</p>
+              <p className={`text-xs capitalize ${
+                darkMode ? 'text-orange-400' : 'text-orange-500'
+              }`}>{user?.role || 'Utilisateur'}</p>
             </div>
           </div>
         </div>
@@ -79,10 +103,14 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
               to={link.to}
               onClick={() => setIsOpen(false)}
               className={({ isActive }) => 
-                `flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 ${
+                `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${isRTL ? 'flex-row-reverse' : ''} ${
                   isActive 
-                    ? 'bg-white/10 text-white' 
-                    : 'text-navy-300 hover:bg-navy-700 hover:text-white'
+                    ? darkMode 
+                      ? 'bg-orange-900/30 text-orange-400' 
+                      : 'bg-orange-50 text-orange-600'
+                    : darkMode
+                      ? 'text-gray-400 hover:bg-gray-700 hover:text-orange-400'
+                      : 'text-gray-600 hover:bg-gray-50 hover:text-orange-500'
                 }`
               }
             >
@@ -93,29 +121,25 @@ const Sidebar = ({ isOpen, setIsOpen }) => {
         </nav>
 
         {/* Footer - Logout Button */}
-        <div className="p-4 border-t border-navy-700">
+        <div className={`p-4 border-t ${
+          darkMode ? 'border-gray-700' : 'border-gray-200'
+        }`}>
           <button 
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-navy-300 hover:bg-red-500/10 hover:text-red-400 transition-all duration-200"
+            className={`flex w-full items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ${isRTL ? 'flex-row-reverse' : ''} ${
+              darkMode 
+                ? 'text-gray-400 hover:bg-red-900/20 hover:text-red-400' 
+                : 'text-gray-600 hover:bg-red-50 hover:text-red-600'
+            }`}
           >
             <i className="bi bi-box-arrow-right text-lg"></i>
-            <span className="text-sm font-medium">Déconnexion</span>
+            <span className="text-sm font-medium">{t('sidebar_logout')}</span>
           </button>
           <div className="mt-3 text-center">
-            <p className="text-xs text-navy-500">Version 2.0.0</p>
+            <p className={`text-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>Version 2.0.0</p>
           </div>
         </div>
       </aside>
-
-      <style jsx>{`
-        .bg-navy-700 { background-color: #1e3a5f; }
-        .bg-navy-800 { background-color: #0f2b4d; }
-        .text-navy-300 { color: #a0b4d0; }
-        .text-navy-500 { color: #5a7a9a; }
-        .border-navy-600 { border-color: #2a4a6e; }
-        .border-navy-700 { border-color: #1e3a5f; }
-        .hover\\:bg-navy-700:hover { background-color: #1e3a5f; }
-      `}</style>
     </>
   );
 };

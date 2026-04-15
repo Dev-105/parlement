@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 
@@ -7,8 +8,23 @@ const DemandeDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const { t, i18n } = useTranslation();
+  const isRTL = i18n.language === 'ar';
   const [demande, setDemande] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
+
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setDarkMode(isDark);
+    
+    const observer = new MutationObserver(() => {
+      setDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const fetchDemande = async () => {
@@ -26,12 +42,36 @@ const DemandeDetail = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      pending: { class: 'bg-amber-50 text-amber-700 border-amber-200', label: 'En attente' },
-      in_review: { class: 'bg-blue-50 text-blue-700 border-blue-200', label: 'En révision' },
-      accepted: { class: 'bg-emerald-50 text-emerald-700 border-emerald-200', label: 'Acceptée' },
-      rejected: { class: 'bg-red-50 text-red-700 border-red-200', label: 'Refusée' }
+      pending: darkMode 
+        ? 'bg-amber-900/30 text-amber-400 border border-amber-800'
+        : 'bg-amber-50 text-amber-700 border border-amber-200',
+      in_review: darkMode
+        ? 'bg-blue-900/30 text-blue-400 border border-blue-800'
+        : 'bg-blue-50 text-blue-700 border border-blue-200',
+      accepted: darkMode
+        ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-800'
+        : 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+      rejected: darkMode
+        ? 'bg-red-900/30 text-red-400 border border-red-800'
+        : 'bg-red-50 text-red-700 border border-red-200'
+    };
+    const labels = {
+      pending: 'En attente',
+      in_review: 'En révision',
+      accepted: 'Acceptée',
+      rejected: 'Refusée'
     };
     return badges[status] || badges.pending;
+  };
+
+  const getStatusLabel = (status) => {
+    const labels = {
+      pending: 'En attente',
+      in_review: 'En révision',
+      accepted: 'Acceptée',
+      rejected: 'Refusée'
+    };
+    return labels[status] || status;
   };
 
   const handleStatusChange = async (newStatus) => {
@@ -80,7 +120,11 @@ const DemandeDetail = () => {
       <button
         type="button"
         onClick={() => downloadFile(fileType, fileUrl)}
-        className="text-blue-600 hover:text-blue-800 underline flex items-center gap-1"
+        className={`flex items-center gap-2 transition-colors ${
+          darkMode 
+            ? 'text-orange-400 hover:text-orange-300' 
+            : 'text-orange-600 hover:text-orange-800'
+        }`}
       >
         <i className="bi bi-file-earmark-text"></i>
         Télécharger {fileName}
@@ -94,7 +138,6 @@ const DemandeDetail = () => {
     const details = demande.details;
     const formattedDetails = [];
     
-    // Format based on demande type
     if (demande.type === 'stage') {
       const stageFields = [
         { key: 'school_name', label: 'Établissement' },
@@ -113,7 +156,6 @@ const DemandeDetail = () => {
         }
       });
       
-      // Handle CV file separately
       if (details.cv_file) {
         formattedDetails.push({
           label: 'CV',
@@ -137,7 +179,6 @@ const DemandeDetail = () => {
         }
       });
       
-      // Handle supporting document separately
       if (details.supporting_document) {
         formattedDetails.push({
           label: 'Document justificatif',
@@ -186,110 +227,166 @@ const DemandeDetail = () => {
     return formattedDetails;
   };
 
+  const getTypeIcon = (type) => {
+    const icons = {
+      stage: 'bi-briefcase',
+      presse: 'bi-newspaper',
+      bibliotheque: 'bi-book',
+      visite: 'bi-people'
+    };
+    return icons[type] || 'bi-file-text';
+  };
+
+  const getTypeLabel = (type) => {
+    const labels = {
+      stage: 'Stage',
+      presse: 'Presse',
+      bibliotheque: 'Bibliothèque',
+      visite: 'Visite'
+    };
+    return labels[type] || type;
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <i className="bi bi-hourglass-split text-3xl animate-pulse text-gray-400"></i>
+        <i className={`bi bi-hourglass-split text-3xl animate-pulse ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}></i>
       </div>
     );
   }
 
   if (!demande) {
     return (
-      <div className="text-center p-12 bg-white rounded-lg border border-gray-100">
-        <i className="bi bi-exclamation-circle text-4xl text-gray-300"></i>
-        <h3 className="mt-2 text-lg font-medium text-gray-900">Demande introuvable</h3>
-        <button onClick={() => navigate('/demandes')} className="mt-4 text-blue-600 hover:underline">
+      <div className={`text-center p-12 rounded-2xl border ${
+        darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
+      }`}>
+        <i className={`bi bi-exclamation-circle text-4xl ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}></i>
+        <h3 className={`mt-2 text-lg font-medium ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+          Demande introuvable
+        </h3>
+        <button 
+          onClick={() => navigate('/demandes')} 
+          className={`mt-4 transition-colors ${darkMode ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-800'}`}
+        >
           Retour aux demandes
         </button>
       </div>
     );
   }
 
-  const status = getStatusBadge(demande.status);
+  const statusBadge = getStatusBadge(demande.status);
   const formattedDetails = renderDetails();
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div className="flex items-center gap-4">
-        <button onClick={() => navigate('/demandes')} className="p-2 text-gray-500 hover:bg-gray-100 rounded-full transition-colors">
-          <i className="bi bi-arrow-left text-lg"></i>
+    <div className={`max-w-4xl mx-auto space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+      {/* Header with Back Button */}
+      <div className={`flex items-center gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <button 
+          onClick={() => navigate('/demandes')} 
+          className={`p-2 rounded-xl transition-colors ${
+            darkMode 
+              ? 'text-gray-400 hover:bg-gray-700' 
+              : 'text-gray-500 hover:bg-gray-100'
+          }`}
+        >
+          <i className={`bi bi-arrow-left text-lg ${isRTL ? 'rotate-180' : ''}`}></i>
         </button>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Détails de la demande #{demande.id}</h1>
-          <p className="text-sm text-gray-500">Créée le {new Date(demande.created_at).toLocaleDateString('fr-FR')}</p>
+          <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            Détails de la demande #{demande.id}
+          </h1>
+          <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            Créée le {new Date(demande.created_at).toLocaleDateString('fr-FR')}
+          </p>
         </div>
       </div>
 
-      <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm">
-        <div className="p-6 border-b border-gray-100 flex justify-between items-start">
+      {/* Main Card */}
+      <div className={`rounded-2xl shadow-sm overflow-hidden ${
+        darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'
+      }`}>
+        {/* Header Section */}
+        <div className={`p-6 border-b flex flex-wrap justify-between items-start gap-4 ${isRTL ? 'flex-row-reverse' : ''} ${
+          darkMode ? 'border-gray-700' : 'border-gray-100'
+        }`}>
           <div className="flex-1">
-            <h2 className="text-xl font-semibold text-gray-900">{demande.title}</h2>
-            <div className="flex flex-wrap items-center gap-2 mt-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-medium border ${status.class}`}>
-                {status.label}
+            <h2 className={`text-xl font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+              {demande.title}
+            </h2>
+            <div className={`flex flex-wrap items-center gap-2 mt-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+              <span className={`text-xs px-3 py-1 rounded-full font-medium border ${statusBadge}`}>
+                {getStatusLabel(demande.status)}
               </span>
-              <span className="px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 capitalize">
-                Type: {demande.type}
+              <span className={`text-xs px-3 py-1 rounded-full font-medium capitalize flex items-center gap-1 ${
+                darkMode ? 'bg-gray-700 text-gray-300' : 'bg-gray-100 text-gray-700'
+              }`}>
+                <i className={`${getTypeIcon(demande.type)} text-xs`}></i>
+                Type: {getTypeLabel(demande.type)}
               </span>
             </div>
             
             {/* Enhanced user info for admin */}
             {user?.role === 'admin' && demande.user && (
-              <div className="mt-4 p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-lg">
-                <div className="flex items-center gap-2 mb-3">
-                  <i className="bi bi-person-badge text-navy-800 text-lg"></i>
-                  <span className="font-semibold text-gray-800">Informations du demandeur</span>
+              <div className={`mt-5 p-5 rounded-xl ${
+                darkMode ? 'bg-gray-700/50' : 'bg-gradient-to-r from-gray-50 to-gray-100'
+              }`}>
+                <div className={`flex items-center gap-2 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                  <i className={`bi bi-person-badge ${darkMode ? 'text-orange-400' : 'text-orange-600'} text-lg`}></i>
+                  <span className={`font-semibold ${darkMode ? 'text-white' : 'text-gray-800'}`}>
+                    Informations du demandeur
+                  </span>
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <div className="flex items-center gap-2">
-                      <i className="bi bi-person text-gray-500 text-sm w-5"></i>
-                      <span className="text-gray-600 text-sm">Nom complet:</span>
+                    <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                      <i className={`bi bi-person ${darkMode ? 'text-gray-500' : 'text-gray-500'} text-sm w-5`}></i>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Nom complet:</span>
                       <button
                         onClick={() => navigate(`/admin/users/${demande.user.id}`)}
-                        className="text-blue-600 hover:text-blue-800 font-medium text-sm hover:underline"
+                        className={`text-sm font-medium transition-colors ${
+                          darkMode ? 'text-orange-400 hover:text-orange-300' : 'text-orange-600 hover:text-orange-800'
+                        }`}
                       >
                         {demande.user.first_name} {demande.user.last_name}
                       </button>
                     </div>
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <i className="bi bi-envelope text-gray-500 text-sm w-5"></i>
-                      <span className="text-gray-600 text-sm">Email:</span>
-                      <span className="text-gray-800 text-sm">{demande.user.email}</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Email:</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.email}</span>
                     </div>
                     {demande.user.cin && (
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <i className="bi bi-person-badge text-gray-500 text-sm w-5"></i>
-                        <span className="text-gray-600 text-sm">CIN:</span>
-                        <span className="text-gray-800 text-sm font-medium">{demande.user.cin}</span>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>CIN:</span>
+                        <span className={`text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.cin}</span>
                       </div>
                     )}
                     {demande.user.phone && (
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <i className="bi bi-telephone text-gray-500 text-sm w-5"></i>
-                        <span className="text-gray-600 text-sm">Téléphone:</span>
-                        <span className="text-gray-800 text-sm">{demande.user.phone}</span>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Téléphone:</span>
+                        <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.phone}</span>
                       </div>
                     )}
                   </div>
                   <div>
-                    <div className="flex items-center gap-2">
+                    <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <i className="bi bi-person-badge text-gray-500 text-sm w-5"></i>
-                      <span className="text-gray-600 text-sm">Rôle:</span>
-                      <span className="capitalize text-gray-800 text-sm font-medium">{demande.user.role}</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Rôle:</span>
+                      <span className={`capitalize text-sm font-medium ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.role}</span>
                     </div>
                     {demande.user.city && (
-                      <div className="flex items-center gap-2 mt-2">
+                      <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                         <i className="bi bi-geo-alt text-gray-500 text-sm w-5"></i>
-                        <span className="text-gray-600 text-sm">Ville:</span>
-                        <span className="text-gray-800 text-sm">{demande.user.city}</span>
+                        <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Ville:</span>
+                        <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>{demande.user.city}</span>
                       </div>
                     )}
-                    <div className="flex items-center gap-2 mt-2">
+                    <div className={`flex items-center gap-2 mt-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
                       <i className="bi bi-calendar text-gray-500 text-sm w-5"></i>
-                      <span className="text-gray-600 text-sm">Membre depuis:</span>
-                      <span className="text-gray-800 text-sm">
+                      <span className={`text-sm ${darkMode ? 'text-gray-400' : 'text-gray-600'}`}>Membre depuis:</span>
+                      <span className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                         {new Date(demande.user.created_at).toLocaleDateString('fr-FR')}
                       </span>
                     </div>
@@ -299,12 +396,17 @@ const DemandeDetail = () => {
             )}
           </div>
           
+          {/* Admin Actions */}
           {user?.role === 'admin' && (
-            <div className="flex gap-2 ml-4">
+            <div className={`flex gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
               {demande.status !== 'accepted' && demande.status !== 'in_review' && (
                 <button 
                   onClick={() => handleStatusChange('in_review')} 
-                  className="px-3 py-1.5 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded text-sm font-medium transition-colors"
+                  className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-1 ${
+                    darkMode 
+                      ? 'bg-blue-900/30 text-blue-400 hover:bg-blue-900/50 border border-blue-800'
+                      : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
+                  }`}
                   title="Mettre en révision"
                 >
                   <i className="bi bi-clock-history mr-1"></i>
@@ -314,7 +416,11 @@ const DemandeDetail = () => {
               {demande.status !== 'accepted' && (
                 <button 
                   onClick={() => handleStatusChange('accepted')} 
-                  className="px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded text-sm font-medium transition-colors"
+                  className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-1 ${
+                    darkMode 
+                      ? 'bg-emerald-900/30 text-emerald-400 hover:bg-emerald-900/50 border border-emerald-800'
+                      : 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                  }`}
                   title="Accepter"
                 >
                   <i className="bi bi-check-lg mr-1"></i>
@@ -324,7 +430,11 @@ const DemandeDetail = () => {
               {demande.status !== 'rejected' && (
                 <button 
                   onClick={() => handleStatusChange('rejected')} 
-                  className="px-3 py-1.5 bg-red-50 text-red-700 hover:bg-red-100 rounded text-sm font-medium transition-colors"
+                  className={`px-3 py-1.5 rounded-xl text-sm font-medium transition-all duration-200 flex items-center gap-1 ${
+                    darkMode 
+                      ? 'bg-red-900/30 text-red-400 hover:bg-red-900/50 border border-red-800'
+                      : 'bg-red-50 text-red-700 hover:bg-red-100'
+                  }`}
                   title="Refuser"
                 >
                   <i className="bi bi-x-lg mr-1"></i>
@@ -335,30 +445,43 @@ const DemandeDetail = () => {
           )}
         </div>
 
+        {/* Content Section */}
         <div className="p-6">
+          {/* Message Section */}
           <div className="mb-6">
-            <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-3 flex items-center gap-2">
-              <i className="bi bi-chat-text text-navy-800"></i>
+            <h3 className={`text-sm font-medium uppercase tracking-wider mb-3 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''} ${
+              darkMode ? 'text-gray-400' : 'text-gray-500'
+            }`}>
+              <i className={`bi bi-chat-text ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}></i>
               Message
             </h3>
-            <div className="bg-gray-50 p-4 rounded-lg border border-gray-100">
-              <p className="text-gray-800 whitespace-pre-wrap text-sm leading-relaxed">
+            <div className={`p-5 rounded-xl border ${
+              darkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-100'
+            }`}>
+              <p className={`whitespace-pre-wrap text-sm leading-relaxed ${darkMode ? 'text-gray-300' : 'text-gray-800'}`}>
                 {demande.message}
               </p>
             </div>
           </div>
 
+          {/* Specific Information Section */}
           {formattedDetails.length > 0 && (
             <div>
-              <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <i className="bi bi-info-circle text-navy-800"></i>
+              <h3 className={`text-sm font-medium uppercase tracking-wider mb-4 flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''} ${
+                darkMode ? 'text-gray-400' : 'text-gray-500'
+              }`}>
+                <i className={`bi bi-info-circle ${darkMode ? 'text-orange-400' : 'text-orange-600'}`}></i>
                 Informations spécifiques
               </h3>
-              <div className="grid sm:grid-cols-2 gap-y-4 gap-x-8 bg-gray-50 p-4 rounded-lg border border-gray-100">
+              <div className={`grid sm:grid-cols-2 gap-y-4 gap-x-8 p-5 rounded-xl border ${
+                darkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-gray-50 border-gray-100'
+              }`}>
                 {formattedDetails.map((detail, index) => (
-                  <div key={index} className="border-b border-gray-200 pb-2 last:border-0">
-                    <dt className="text-xs text-gray-500 font-medium">{detail.label}</dt>
-                    <dd className="text-sm text-gray-900 mt-1 font-medium break-words">
+                  <div key={index} className={`border-b pb-2 last:border-0 ${isRTL ? 'text-right' : 'text-left'} ${
+                    darkMode ? 'border-gray-600' : 'border-gray-200'
+                  }`}>
+                    <dt className={`text-xs font-medium ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{detail.label}</dt>
+                    <dd className={`text-sm mt-1 font-medium break-words ${darkMode ? 'text-gray-300' : 'text-gray-900'}`}>
                       {typeof detail.value === 'object' ? detail.value : detail.value}
                     </dd>
                   </div>
@@ -368,12 +491,6 @@ const DemandeDetail = () => {
           )}
         </div>
       </div>
-
-      <style jsx>{`
-        .bg-navy-50 { background-color: #e8edf5; }
-        .bg-navy-800 { background-color: #0f2b4d; }
-        .text-navy-800 { color: #0f2b4d; }
-      `}</style>
     </div>
   );
 };

@@ -27,13 +27,26 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        {/* Logo */}
+    <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+      {/* Background decoration with parlement.png */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <img 
+          src="/parlement.png" 
+          alt="Parlement Background" 
+          className="absolute top-0 left-0 w-full h-full object-cover opacity-5"
+        />
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-50 rounded-full blur-3xl opacity-60"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-50 rounded-full blur-3xl opacity-40"></div>
+      </div>
+
+      <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        {/* Logo - Using your image */}
         <div className="flex justify-center">
-          <div className="w-12 h-12 bg-navy-800 rounded-lg flex items-center justify-center">
-            <i className="bi bi-bank2 text-white text-xl"></i>
-          </div>
+          <img 
+            src="/royaumeDuMarocLogo.png" 
+            alt="Royaume du Maroc Logo" 
+            className="h-16 w-auto object-contain"
+          />
         </div>
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
           Connexion
@@ -43,29 +56,32 @@ const Login = () => {
         </p>
       </div>
 
-      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-white py-8 px-6 shadow-md rounded-lg">
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
+        <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-200">
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2">
-              <i className="bi bi-exclamation-circle-fill text-red-500"></i>
-              <span className="text-sm text-red-700">{error}</span>
+            <div className="mb-4 p-4 bg-orange-50 border border-orange-200 rounded-xl flex items-center gap-3">
+              <i className="bi bi-exclamation-circle-fill text-orange-500 text-lg"></i>
+              <span className="text-sm text-gray-700 flex-1">{error}</span>
+              <button onClick={() => setError('')} className="text-gray-400 hover:text-gray-600">
+                <i className="bi bi-x-lg text-xs"></i>
+              </button>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Adresse email
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <i className="bi bi-envelope text-gray-400 text-sm"></i>
+                  <i className="bi bi-envelope text-gray-400 group-focus-within:text-orange-500 transition-colors text-sm"></i>
                 </div>
                 <input
                   type="email"
                   name="email"
                   required
-                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-navy-800 focus:border-navy-800 text-gray-900"
+                  className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-gray-900 transition-all duration-200 bg-gray-50 hover:bg-white"
                   placeholder="exemple@parlement.ma"
                   value={formData.email}
                   onChange={(e) => setFormData({...formData, email: e.target.value})}
@@ -74,18 +90,18 @@ const Login = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-semibold text-gray-900 mb-2">
                 Mot de passe
               </label>
-              <div className="relative">
+              <div className="relative group">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <i className="bi bi-lock text-gray-400 text-sm"></i>
+                  <i className="bi bi-lock text-gray-400 group-focus-within:text-orange-500 transition-colors text-sm"></i>
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
                   name="password"
                   required
-                  className="block w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-navy-800 focus:border-navy-800 text-gray-900"
+                  className="block w-full pl-10 pr-10 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-gray-900 transition-all duration-200 bg-gray-50 hover:bg-white"
                   placeholder="••••••••"
                   value={formData.password}
                   onChange={(e) => setFormData({...formData, password: e.target.value})}
@@ -95,7 +111,7 @@ const Login = () => {
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
                 >
-                  <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'} text-gray-400 text-sm hover:text-gray-600`}></i>
+                  <i className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'} text-gray-400 text-sm hover:text-gray-600 transition-colors`}></i>
                 </button>
               </div>
             </div>
@@ -105,14 +121,14 @@ const Login = () => {
                 <input
                   id="remember"
                   type="checkbox"
-                  className="h-4 w-4 text-navy-800 focus:ring-navy-800 border-gray-300 rounded"
+                  className="h-4 w-4 text-orange-500 focus:ring-orange-500 focus:ring-offset-0 border-gray-300 rounded cursor-pointer"
                 />
-                <label htmlFor="remember" className="ml-2 block text-sm text-gray-700">
+                <label htmlFor="remember" className="ml-2 block text-sm text-gray-600 cursor-pointer">
                   Se souvenir de moi
                 </label>
               </div>
               <div className="text-sm">
-                <a href="#" className="text-navy-800 hover:text-navy-900">
+                <a href="#" className="text-orange-500 hover:text-orange-600 transition-colors font-medium">
                   Mot de passe oublié ?
                 </a>
               </div>
@@ -121,7 +137,7 @@ const Login = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-navy-800 hover:bg-navy-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="w-full flex justify-center items-center gap-2 py-3 px-4 border border-transparent rounded-xl shadow-md text-sm font-semibold text-white bg-orange-500 hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
             >
               {loading ? (
                 <>
@@ -137,13 +153,13 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="mt-6">
+          <div className="mt-8">
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-gray-200"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
+                <span className="px-4 bg-white text-gray-500">
                   Nouveau utilisateur ?
                 </span>
               </div>
@@ -152,29 +168,19 @@ const Login = () => {
             <div className="mt-6">
               <Link
                 to="/register"
-                className="w-full flex justify-center items-center gap-2 py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-navy-800 transition-colors"
+                className="w-full flex justify-center items-center gap-2 py-3 px-4 border-2 border-gray-200 rounded-xl shadow-sm text-sm font-semibold text-gray-700 bg-white hover:bg-orange-50 hover:border-orange-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500 transition-all duration-200"
               >
-                <i className="bi bi-person-plus"></i>
+                <i className="bi bi-person-plus text-orange-500"></i>
                 Créer un compte
               </Link>
             </div>
           </div>
         </div>
 
-        <div className="mt-6 text-center text-xs text-gray-400">
+        <div className="mt-8 text-center text-xs text-gray-400">
           <p>© 2026 Parlement du Maroc. Tous droits réservés.</p>
         </div>
       </div>
-
-      <style jsx>{`
-        .bg-navy-800 { background-color: #0f2b4d; }
-        .bg-navy-900 { background-color: #0a1e36; }
-        .text-navy-800 { color: #0f2b4d; }
-        .text-navy-900 { color: #0a1e36; }
-        .hover\\:bg-navy-900:hover { background-color: #0a1e36; }
-        .focus\\:ring-navy-800:focus { --tw-ring-color: #0f2b4d; }
-        .focus\\:border-navy-800:focus { border-color: #0f2b4d; }
-      `}</style>
     </div>
   );
 };

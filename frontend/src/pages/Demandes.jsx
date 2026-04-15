@@ -5,16 +5,17 @@ import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 
 const Demandes = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
+  const isRTL = i18n.language === 'ar';
   const [demandes, setDemandes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('all');
   const [typeFilter, setTypeFilter] = useState('all');
   const [cinFilter, setCinFilter] = useState('');
+  const [darkMode, setDarkMode] = useState(false);
   
-  // Create Modal
   const [showCreate, setShowCreate] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [showBulkMessageModal, setShowBulkMessageModal] = useState(false);
@@ -23,39 +24,44 @@ const Demandes = () => {
   const [formData, setFormData] = useState({
     title: '',
     message: '',
-    // Stage fields
     school_name: '',
     field_of_study: '',
     start_date: '',
     end_date: '',
     cv_file: null,
     motivation_letter: '',
-    // Presse fields
     media_name: '',
     press_card_number: '',
     organization: '',
     supporting_document: null,
-    // Bibliotheque fields
     research_topic: '',
     institution: '',
     visit_date: '',
     duration: '',
     purpose: '',
-    // Visite fields
     number_of_students: '',
     grade_level: '',
     supervisor_name: '',
     phone: ''
   });
   const [submitLoading, setSubmitLoading] = useState(false);
-
-  // Admin Notification Modal
   const [showMessageModal, setShowMessageModal] = useState(false);
   const [selectedDemande, setSelectedDemande] = useState(null);
   const [messageForm, setMessageForm] = useState({ title: '', message: '' });
   const [messageLoading, setMessageLoading] = useState(false);
 
-  // Determine demande type based on user role
+  useEffect(() => {
+    const isDark = document.documentElement.classList.contains('dark');
+    setDarkMode(isDark);
+    
+    const observer = new MutationObserver(() => {
+      setDarkMode(document.documentElement.classList.contains('dark'));
+    });
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] });
+    
+    return () => observer.disconnect();
+  }, []);
+
   const getDemandeType = () => {
     const roleTypeMap = {
       stagiaire: 'stage',
@@ -94,13 +100,10 @@ const Demandes = () => {
     setSubmitLoading(true);
     
     const formDataToSend = new FormData();
-    
-    // Common fields
     formDataToSend.append('type', demandeType);
     formDataToSend.append('title', formData.title);
     formDataToSend.append('message', formData.message);
     
-    // Stage specific fields
     if (demandeType === 'stage') {
       if (formData.school_name) formDataToSend.append('school_name', formData.school_name);
       if (formData.field_of_study) formDataToSend.append('field_of_study', formData.field_of_study);
@@ -110,7 +113,6 @@ const Demandes = () => {
       if (formData.motivation_letter) formDataToSend.append('motivation_letter', formData.motivation_letter);
     }
     
-    // Presse specific fields
     if (demandeType === 'presse') {
       if (formData.media_name) formDataToSend.append('media_name', formData.media_name);
       if (formData.press_card_number) formDataToSend.append('press_card_number', formData.press_card_number);
@@ -118,7 +120,6 @@ const Demandes = () => {
       if (formData.supporting_document) formDataToSend.append('supporting_document', formData.supporting_document);
     }
     
-    // Bibliotheque specific fields
     if (demandeType === 'bibliotheque') {
       if (formData.research_topic) formDataToSend.append('research_topic', formData.research_topic);
       if (formData.institution) formDataToSend.append('institution', formData.institution);
@@ -127,7 +128,6 @@ const Demandes = () => {
       if (formData.purpose) formDataToSend.append('purpose', formData.purpose);
     }
     
-    // Visite specific fields
     if (demandeType === 'visite') {
       if (formData.school_name) formDataToSend.append('school_name', formData.school_name);
       if (formData.number_of_students) formDataToSend.append('number_of_students', parseInt(formData.number_of_students));
@@ -202,10 +202,10 @@ const Demandes = () => {
       await api.post(`/admin/users/${selectedDemande.user_id}/notify`, messageForm);
       setShowMessageModal(false);
       setMessageForm({ title: '', message: '' });
-      alert('Message envoyé avec succès');
+      alert(t('demandes.message_sent'));
     } catch (err) {
       console.error('Error sending message:', err);
-      alert('Erreur lors de l\'envoi du message');
+      alert(t('demandes.error_sending_message'));
     } finally {
       setMessageLoading(false);
     }
@@ -243,17 +243,17 @@ const Demandes = () => {
       setShowBulkMessageModal(false);
       setBulkMessageForm({ title: '', message: '' });
       setSelectedUserIds([]);
-      alert('Notifications envoyées avec succès');
+      alert(t('demandes.notifications_sent'));
     } catch (err) {
       console.error('Error sending bulk message:', err);
-      alert('Erreur lors de l\'envoi des notifications');
+      alert(t('demandes.error_sending_notifications'));
     } finally {
       setBulkMessageLoading(false);
     }
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Confirmer la suppression ?')) return;
+    if (!window.confirm(t('demandes.confirm_delete'))) return;
     try {
       await api.delete(`/demandes/${id}`);
       fetchDemandes();
@@ -264,12 +264,26 @@ const Demandes = () => {
 
   const getStatusBadge = (status) => {
     const badges = {
-      pending: { class: 'bg-amber-50 text-amber-700 border border-amber-200', label: 'En attente' },
-      in_review: { class: 'bg-blue-50 text-blue-700 border border-blue-200', label: 'En révision' },
-      accepted: { class: 'bg-emerald-50 text-emerald-700 border border-emerald-200', label: 'Acceptée' },
-      rejected: { class: 'bg-red-50 text-red-700 border border-red-200', label: 'Refusée' }
+      pending: darkMode 
+        ? 'bg-amber-900/30 text-amber-400 border border-amber-800'
+        : 'bg-amber-50 text-amber-700 border border-amber-200',
+      in_review: darkMode
+        ? 'bg-blue-900/30 text-blue-400 border border-blue-800'
+        : 'bg-blue-50 text-blue-700 border border-blue-200',
+      accepted: darkMode
+        ? 'bg-emerald-900/30 text-emerald-400 border border-emerald-800'
+        : 'bg-emerald-50 text-emerald-700 border border-emerald-200',
+      rejected: darkMode
+        ? 'bg-red-900/30 text-red-400 border border-red-800'
+        : 'bg-red-50 text-red-700 border border-red-200'
     };
-    return badges[status] || badges.pending;
+    const labels = {
+      pending: t('pending'),
+      in_review: t('in_review'),
+      accepted: t('accepted'),
+      rejected: t('rejected')
+    };
+    return { className: badges[status] || badges.pending, label: labels[status] || status };
   };
 
   const getTypeIcon = (type) => {
@@ -284,39 +298,38 @@ const Demandes = () => {
 
   const getTypeLabel = (type) => {
     const labels = {
-      stage: 'Stage',
-      presse: 'Presse',
-      bibliotheque: 'Bibliothèque',
-      visite: 'Visite'
+      stage: t('dashboard.types.stage'),
+      presse: t('dashboard.types.presse'),
+      bibliotheque: t('dashboard.types.bibliotheque'),
+      visite: t('dashboard.types.visite')
     };
     return labels[type] || type;
   };
 
-  // Get title and description based on user role
   const getDemandeInfo = () => {
     const info = {
       stage: {
-        title: 'Demande de Stage',
-        desc: 'Stage professionnel au sein du parlement',
+        title: t('dashboard.requests.stage.title'),
+        desc: t('dashboard.requests.stage.desc'),
         icon: 'bi-briefcase'
       },
       presse: {
-        title: 'Demande Presse',
-        desc: 'Accréditation pour les médias',
+        title: t('dashboard.requests.presse.title'),
+        desc: t('dashboard.requests.presse.desc'),
         icon: 'bi-newspaper'
       },
       bibliotheque: {
-        title: 'Demande Bibliothèque',
-        desc: 'Accès aux archives et documents',
+        title: t('dashboard.requests.bibliotheque.title'),
+        desc: t('dashboard.requests.bibliotheque.desc'),
         icon: 'bi-book'
       },
       visite: {
-        title: 'Demande de Visite',
-        desc: 'Visite guidée pour groupes scolaires',
+        title: t('dashboard.requests.visite.title'),
+        desc: t('dashboard.requests.visite.desc'),
         icon: 'bi-people'
       }
     };
-    return info[demandeType] || { title: 'Nouvelle Demande', desc: '', icon: 'bi-file-text' };
+    return info[demandeType] || { title: t('create_demande'), desc: '', icon: 'bi-file-text' };
   };
 
   const demandeInfo = getDemandeInfo();
@@ -332,70 +345,107 @@ const Demandes = () => {
     });
   }, [demandes, filter, typeFilter, cinFilter]);
 
-  // Render form fields based on demande type
   const renderFormFields = () => {
     switch (demandeType) {
       case 'stage':
         return (
           <>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className={`grid sm:grid-cols-2 gap-4 ${isRTL ? 'sm:gap-x-6' : ''}`}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Établissement / Université *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t('dashboard.form.school_name')}
+                </label>
                 <input
                   required
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   value={formData.school_name}
                   onChange={(e) => setFormData({...formData, school_name: e.target.value})}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Filière d'étude *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t('dashboard.form.field_of_study')}
+                </label>
                 <input
                   required
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   value={formData.field_of_study}
                   onChange={(e) => setFormData({...formData, field_of_study: e.target.value})}
                 />
               </div>
             </div>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className={`grid sm:grid-cols-2 gap-4 ${isRTL ? 'sm:gap-x-6' : ''}`}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date de début</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t('dashboard.form.start_date')}
+                </label>
                 <input
                   type="date"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   value={formData.start_date}
                   onChange={(e) => setFormData({...formData, start_date: e.target.value})}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date de fin</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t('dashboard.form.end_date')}
+                </label>
                 <input
                   type="date"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   value={formData.end_date}
                   onChange={(e) => setFormData({...formData, end_date: e.target.value})}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">CV (PDF, DOC, DOCX)</label>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                {t('dashboard.form.cv_file')}
+              </label>
               <input
                 type="file"
                 accept=".pdf,.doc,.docx"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:text-sm file:font-medium ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-gray-300 file:bg-gray-600 file:text-white file:border-gray-500'
+                    : 'bg-gray-50 border-gray-200 text-gray-900 file:bg-orange-50 file:text-orange-600 file:border-orange-200'
+                }`}
                 onChange={(e) => handleFileChange(e, 'cv_file')}
               />
-              <p className="text-xs text-gray-500 mt-1">Format acceptés: PDF, DOC, DOCX (Max 5MB)</p>
+              <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                {t('dashboard.form.accepted_formats')}
+              </p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Lettre de motivation</label>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                {t('dashboard.form.motivation_letter')}
+              </label>
               <textarea
                 rows="4"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm resize-none"
-                placeholder="Expliquez pourquoi vous souhaitez effectuer un stage au parlement..."
+                className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm resize-none ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                    : 'bg-gray-50 border-gray-200 text-gray-900'
+                }`}
+                placeholder={t('dashboard.form.motivation_letter_placeholder')}
                 value={formData.motivation_letter}
                 onChange={(e) => setFormData({...formData, motivation_letter: e.target.value})}
               ></textarea>
@@ -406,178 +456,72 @@ const Demandes = () => {
       case 'presse':
         return (
           <>
-            <div className="grid sm:grid-cols-2 gap-4">
+            <div className={`grid sm:grid-cols-2 gap-4 ${isRTL ? 'sm:gap-x-6' : ''}`}>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nom du média *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t('dashboard.form.media_name')}
+                </label>
                 <input
                   required
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   value={formData.media_name}
                   onChange={(e) => setFormData({...formData, media_name: e.target.value})}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">N° Carte de presse *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  {t('dashboard.form.press_card_number')}
+                </label>
                 <input
                   required
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   value={formData.press_card_number}
                   onChange={(e) => setFormData({...formData, press_card_number: e.target.value})}
                 />
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Organisation</label>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                {t('dashboard.form.organization')}
+              </label>
               <input
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-white'
+                    : 'bg-gray-50 border-gray-200 text-gray-900'
+                }`}
                 value={formData.organization}
                 onChange={(e) => setFormData({...formData, organization: e.target.value})}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Document justificatif</label>
+              <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                {t('dashboard.form.supporting_document')}
+              </label>
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 text-sm file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:text-sm file:font-medium ${
+                  darkMode 
+                    ? 'bg-gray-700 border-gray-600 text-gray-300 file:bg-gray-600 file:text-white file:border-gray-500'
+                    : 'bg-gray-50 border-gray-200 text-gray-900 file:bg-orange-50 file:text-orange-600 file:border-orange-200'
+                }`}
                 onChange={(e) => handleFileChange(e, 'supporting_document')}
               />
-              <p className="text-xs text-gray-500 mt-1">Carte de presse, lettre d'accréditation (PDF, JPG, PNG)</p>
-            </div>
-          </>
-        );
-
-      case 'bibliotheque':
-        return (
-          <>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Sujet de recherche *</label>
-                <input
-                  required
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.research_topic}
-                  onChange={(e) => setFormData({...formData, research_topic: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Institution *</label>
-                <input
-                  required
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.institution}
-                  onChange={(e) => setFormData({...formData, institution: e.target.value})}
-                />
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date de visite souhaitée</label>
-                <input
-                  type="date"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.visit_date}
-                  onChange={(e) => setFormData({...formData, visit_date: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Durée prévue</label>
-                <input
-                  type="text"
-                  placeholder="Ex: 2 heures, Demi-journée"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.duration}
-                  onChange={(e) => setFormData({...formData, duration: e.target.value})}
-                />
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Objectif de la recherche</label>
-              <textarea
-                rows="4"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm resize-none"
-                placeholder="Décrivez l'objectif de votre recherche et les documents que vous souhaitez consulter..."
-                value={formData.purpose}
-                onChange={(e) => setFormData({...formData, purpose: e.target.value})}
-              ></textarea>
-            </div>
-          </>
-        );
-
-      case 'visite':
-        return (
-          <>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nom de l'établissement *</label>
-                <input
-                  required
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.school_name}
-                  onChange={(e) => setFormData({...formData, school_name: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nombre d'élèves/étudiants *</label>
-                <input
-                  required
-                  type="number"
-                  min="1"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.number_of_students}
-                  onChange={(e) => setFormData({...formData, number_of_students: e.target.value})}
-                />
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Niveau *</label>
-                <input
-                  required
-                  type="text"
-                  placeholder="Ex: Primaire, Collège, Lycée, Université"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.grade_level}
-                  onChange={(e) => setFormData({...formData, grade_level: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Date de visite souhaitée</label>
-                <input
-                  type="date"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.visit_date}
-                  onChange={(e) => setFormData({...formData, visit_date: e.target.value})}
-                />
-              </div>
-            </div>
-            <div className="grid sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nom du superviseur *</label>
-                <input
-                  required
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.supervisor_name}
-                  onChange={(e) => setFormData({...formData, supervisor_name: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone *</label>
-                <input
-                  required
-                  type="tel"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                />
-              </div>
+              <p className={`text-xs mt-1 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>
+                {t('dashboard.form.supporting_document_help')}
+              </p>
             </div>
           </>
         );
@@ -587,68 +531,93 @@ const Demandes = () => {
     }
   };
 
+  const statCards = [
+    { label: t('dashboard.stats.total'), value: demandes.length, color: 'text-orange-600', bg: 'bg-orange-50', darkBg: 'bg-orange-900/20', darkColor: 'text-orange-400' },
+    { label: t('pending'), value: demandes.filter(d => d.status === 'pending').length, color: 'text-amber-600', bg: 'bg-amber-50', darkBg: 'bg-amber-900/20', darkColor: 'text-amber-400' },
+    { label: t('accepted'), value: demandes.filter(d => d.status === 'accepted').length, color: 'text-emerald-600', bg: 'bg-emerald-50', darkBg: 'bg-emerald-900/20', darkColor: 'text-emerald-400' },
+    { label: t('rejected'), value: demandes.filter(d => d.status === 'rejected').length, color: 'text-red-600', bg: 'bg-red-50', darkBg: 'bg-red-900/20', darkColor: 'text-red-400' }
+  ];
+
   if (!canCreateDemande && user?.role !== 'admin') {
     return (
-      <div className="space-y-6">
-        <div className="bg-white border border-gray-100 rounded-lg p-12 text-center">
-          <i className="bi bi-exclamation-triangle text-gray-300 text-4xl"></i>
-          <p className="text-gray-400 mt-2">Votre rôle ne permet pas de créer des demandes</p>
-        </div>
+      <div className={`rounded-2xl p-12 text-center ${
+        darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'
+      }`}>
+        <i className={`bi bi-exclamation-triangle text-4xl ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}></i>
+        <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>
+          {t('demandes.role_not_allowed')}
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+      <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Mes demandes</h1>
-          <p className="text-sm text-gray-500 mt-1">Gérez vos demandes parlementaires</p>
+          <h1 className={`text-2xl font-bold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+            {t('sidebar_requests')}
+          </h1>
+          <p className={`text-sm mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+            {t('demandes.subtitle')}
+          </p>
         </div>
         
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className={`flex items-center gap-3 flex-wrap ${isRTL ? 'flex-row-reverse' : ''}`}>
           <select 
-            className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-navy-800"
+            className={`px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 ${
+              darkMode 
+                ? 'bg-gray-700 border border-gray-600 text-gray-200'
+                : 'bg-white border border-gray-200 text-gray-700'
+            }`}
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
             <option value="all">Tous les statuts</option>
-            <option value="pending">En attente</option>
-            <option value="in_review">En révision</option>
-            <option value="accepted">Acceptées</option>
-            <option value="rejected">Refusées</option>
+            <option value="pending">{t('pending')}</option>
+            <option value="in_review">{t('in_review')}</option>
+            <option value="accepted">{t('accepted')}</option>
+            <option value="rejected">{t('rejected')}</option>
           </select>
 
           {user?.role === 'admin' && (
             <>
               <input
                 type="text"
-                placeholder="Filtrer par CIN"
-                className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-navy-800"
+                placeholder={t('demandes.filter_cin')}
+                className={`px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 ${
+                  darkMode 
+                    ? 'bg-gray-700 border border-gray-600 text-white placeholder-gray-400'
+                    : 'bg-white border border-gray-200 text-gray-700'
+                }`}
                 value={cinFilter}
                 onChange={(e) => setCinFilter(e.target.value)}
               />
 
               <select
-                className="px-3 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 focus:outline-none focus:border-navy-800"
+                className={`px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 ${
+                  darkMode 
+                    ? 'bg-gray-700 border border-gray-600 text-gray-200'
+                    : 'bg-white border border-gray-200 text-gray-700'
+                }`}
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
               >
-                <option value="all">Tous les types</option>
-                <option value="stage">Stage</option>
-                <option value="presse">Presse</option>
-                <option value="bibliotheque">Bibliothèque</option>
-                <option value="visite">Visite</option>
+                <option value="all">{t('common.all_types')}</option>
+                <option value="stage">{t('dashboard.types.stage')}</option>
+                <option value="presse">{t('dashboard.types.presse')}</option>
+                <option value="bibliotheque">{t('dashboard.types.bibliotheque')}</option>
+                <option value="visite">{t('dashboard.types.visite')}</option>
               </select>
 
               {selectedUserIds.length > 0 && (
                 <button
                   onClick={() => setShowBulkMessageModal(true)}
-                  className="px-4 py-2 bg-purple-700 text-white text-sm font-medium rounded hover:bg-purple-800 transition-colors flex items-center gap-2"
+                  className="px-4 py-2 bg-orange-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 transition-all duration-200 flex items-center gap-2 shadow-md"
                 >
                   <i className="bi bi-chat-dots text-sm"></i>
-                  Envoyer à {selectedUserIds.length} utilisateur{selectedUserIds.length > 1 ? 's' : ''}
+                  {t('demandes.send_to_users', { count: selectedUserIds.length })}
                 </button>
               )}
             </>
@@ -657,10 +626,10 @@ const Demandes = () => {
           {canCreateDemande && (
             <button 
               onClick={() => setShowCreate(true)} 
-              className="px-4 py-2 bg-navy-800 text-white text-sm font-medium rounded hover:bg-navy-900 transition-colors flex items-center gap-2"
+              className="px-4 py-2 bg-orange-500 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 transition-all duration-200 flex items-center gap-2 shadow-md"
             >
               <i className="bi bi-plus-lg text-sm"></i>
-              Nouvelle demande
+              {t('create_demande')}
             </button>
           )}
         </div>
@@ -668,100 +637,107 @@ const Demandes = () => {
 
       {/* Stats Summary */}
       <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: 'Total', value: demandes.length, color: 'text-gray-700', bg: 'bg-gray-100' },
-          { label: 'En attente', value: demandes.filter(d => d.status === 'pending').length, color: 'text-amber-700', bg: 'bg-amber-50' },
-          { label: 'Acceptées', value: demandes.filter(d => d.status === 'accepted').length, color: 'text-emerald-700', bg: 'bg-emerald-50' },
-          { label: 'Refusées', value: demandes.filter(d => d.status === 'rejected').length, color: 'text-red-700', bg: 'bg-red-50' }
-        ].map((stat, idx) => (
-          <div key={idx} className="bg-white border border-gray-100 rounded-lg p-3 text-center shadow-sm">
-            <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
-            <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
+        {statCards.map((stat, idx) => (
+          <div key={idx} className={`rounded-2xl p-3 text-center shadow-sm transition-all duration-300 ${
+            darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'
+          }`}>
+            <div className={`text-xl font-bold ${darkMode ? stat.darkColor : stat.color}`}>{stat.value}</div>
+            <div className={`text-xs mt-1 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{stat.label}</div>
           </div>
         ))}
       </div>
 
       {/* Demande List */}
       {loading ? (
-        <div className="bg-white border border-gray-100 rounded-lg p-12 text-center">
-          <i className="bi bi-hourglass-split text-gray-300 text-3xl animate-pulse"></i>
-          <p className="text-gray-400 text-sm mt-2">Chargement...</p>
+        <div className={`rounded-2xl p-12 text-center ${
+          darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'
+        }`}>
+          <i className={`bi bi-hourglass-split text-3xl animate-pulse ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}></i>
+          <p className={`text-sm mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t('common.loading')}</p>
         </div>
       ) : filteredData.length === 0 ? (
-        <div className="bg-white border border-gray-100 rounded-lg p-12 text-center">
-          <i className="bi bi-inbox text-gray-300 text-4xl"></i>
-          <p className="text-gray-400 mt-2">Aucune demande trouvée</p>
+        <div className={`rounded-2xl p-12 text-center ${
+          darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'
+        }`}>
+          <i className={`bi bi-inbox text-4xl ${darkMode ? 'text-gray-700' : 'text-gray-300'}`}></i>
+          <p className={`mt-2 ${darkMode ? 'text-gray-400' : 'text-gray-400'}`}>{t('demandes.no_requests_found')}</p>
           {canCreateDemande && (
             <button 
               onClick={() => setShowCreate(true)}
-              className="mt-4 text-sm text-navy-800 hover:text-navy-900 font-medium"
+              className={`mt-4 text-sm font-medium transition-colors ${
+                darkMode ? 'text-orange-400 hover:text-orange-300' : 'text-orange-500 hover:text-orange-600'
+              }`}
             >
-              Créer ma première demande →
+              {t('demandes.create_first_request')}
             </button>
           )}
         </div>
       ) : (
-        <div className="bg-white border border-gray-100 rounded-lg overflow-hidden shadow-sm">
+        <div className={`rounded-2xl overflow-hidden shadow-sm ${
+          darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'
+        }`}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-gray-50 border-b border-gray-100">
-                <tr>
+              <thead className={darkMode ? 'bg-gray-700/50' : 'bg-gray-50'}>
+                <tr className={darkMode ? 'border-b border-gray-700' : 'border-b border-gray-100'}>
                   {user?.role === 'admin' && (
-                    <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                       <input
                         type="checkbox"
+                        className="rounded border-gray-300"
                         checked={filteredData.length > 0 && selectedUserIds.length === Array.from(new Set(filteredData.map((d) => d.user_id).filter(Boolean))).length}
                         onChange={toggleSelectAll}
                       />
                     </th>
                   )}
-                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Titre</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">Date</th>
-                  <th className="px-5 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                  <th className="px-5 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                  <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.id')}</th>
+                  <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.type')}</th>
+                  <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.title')}</th>
+                  <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider hidden md:table-cell ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.date')}</th>
+                  <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.status')}</th>
+                  <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-left' : 'text-right'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.actions')}</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className={`divide-y ${darkMode ? 'divide-gray-700' : 'divide-gray-100'}`}>
                 {filteredData.map((item) => {
                   const status = getStatusBadge(item.status);
                   return (
-                    <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={item.id} className={`transition-colors ${darkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-50'}`}>
                       {user?.role === 'admin' && (
                         <td className="px-5 py-3">
                           <input
                             type="checkbox"
+                            className="rounded border-gray-300"
                             checked={selectedUserIds.includes(item.user_id)}
                             onChange={() => toggleUserSelection(item.user_id)}
                           />
                         </td>
                       )}
-                      <td className="px-5 py-3 text-gray-500 font-mono text-xs">#{item.id}</td>
+                      <td className={`px-5 py-3 font-mono text-xs ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>#{item.id}</td>
                       <td className="px-5 py-3">
-                        <div className="flex items-center gap-2">
-                          <i className={`${getTypeIcon(item.type)} text-navy-800 text-sm`}></i>
-                          <span className="text-gray-700 text-xs font-medium">{getTypeLabel(item.type)}</span>
+                        <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+                          <i className={`${getTypeIcon(item.type)} ${darkMode ? 'text-orange-400' : 'text-orange-600'} text-sm`}></i>
+                          <span className={`text-xs font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{getTypeLabel(item.type)}</span>
                         </div>
                       </td>
                       <td className="px-5 py-3">
-                        <div className="text-gray-900 text-sm font-medium max-w-xs truncate">{item.title}</div>
-                        <div className="text-gray-400 text-xs mt-0.5 line-clamp-1 max-w-xs">{item.message}</div>
+                        <div className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'} max-w-xs truncate`}>{item.title}</div>
+                        <div className={`text-xs mt-0.5 line-clamp-1 max-w-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{item.message}</div>
                       </td>
-                      <td className="px-5 py-3 text-gray-500 text-xs hidden md:table-cell">
+                      <td className={`px-5 py-3 text-xs hidden md:table-cell ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                         {new Date(item.created_at).toLocaleDateString('fr-FR')}
                       </td>
                       <td className="px-5 py-3">
-                        <span className={`text-xs px-2 py-0.5 rounded-full ${status.class}`}>
+                        <span className={`text-xs px-2 py-1 rounded-full ${status.className}`}>
                           {status.label}
                         </span>
                       </td>
                       <td className="px-5 py-3 text-right">
                         {user?.role === 'admin' ? (
-                          <div className="flex items-center justify-end gap-2">
+                          <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse justify-start' : 'justify-end'}`}>
                             <button 
                               onClick={() => navigate(`/demandedetail/${item.id}`)}
-                              className="p-1 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+                              className={`p-1 rounded-lg transition-colors ${darkMode ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-100'}`}
                               title="Voir les détails"
                             >
                               <i className="bi bi-eye text-sm"></i>
@@ -771,16 +747,16 @@ const Demandes = () => {
                                 setSelectedDemande(item);
                                 setShowMessageModal(true);
                               }}
-                              className="p-1 text-purple-600 hover:bg-purple-50 rounded transition-colors"
-                              title="Envoyer un message"
+                              className={`p-1 rounded-lg transition-colors ${darkMode ? 'text-orange-400 hover:bg-orange-900/20' : 'text-orange-600 hover:bg-orange-50'}`}
+                              title={t('demandes.send_message')}
                             >
                               <i className="bi bi-chat-dots text-sm"></i>
                             </button>
                             {item.status !== 'accepted' && item.status !== 'in_review' && (
                               <button 
                                 onClick={() => handleStatusChange(item.id, 'in_review')}
-                                className="p-1 text-blue-600 hover:bg-blue-50 rounded transition-colors"
-                                title="Mettre en révision"
+                                className={`p-1 rounded-lg transition-colors ${darkMode ? 'text-blue-400 hover:bg-blue-900/20' : 'text-blue-600 hover:bg-blue-50'}`}
+                                title={t('demandes.review')}
                               >
                                 <i className="bi bi-clock-history text-sm"></i>
                               </button>
@@ -788,8 +764,8 @@ const Demandes = () => {
                             {item.status !== 'accepted' && (
                               <button 
                                 onClick={() => handleStatusChange(item.id, 'accepted')}
-                                className="p-1 text-emerald-600 hover:bg-emerald-50 rounded transition-colors"
-                                title="Accepter"
+                                className={`p-1 rounded-lg transition-colors ${darkMode ? 'text-emerald-400 hover:bg-emerald-900/20' : 'text-emerald-600 hover:bg-emerald-50'}`}
+                                title={t('accepted')}
                               >
                                 <i className="bi bi-check-lg text-sm"></i>
                               </button>
@@ -797,26 +773,26 @@ const Demandes = () => {
                             {item.status !== 'rejected' && (
                               <button 
                                 onClick={() => handleStatusChange(item.id, 'rejected')}
-                                className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
-                                title="Refuser"
+                                className={`p-1 rounded-lg transition-colors ${darkMode ? 'text-red-400 hover:bg-red-900/20' : 'text-red-600 hover:bg-red-50'}`}
+                                title={t('rejected')}
                               >
                                 <i className="bi bi-x-lg text-sm"></i>
                               </button>
                             )}
                           </div>
                         ) : (
-                          <div className="flex items-center justify-end gap-2">
+                          <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse justify-start' : 'justify-end'}`}>
                             <button 
                               onClick={() => navigate(`/demandedetail/${item.id}`)}
-                              className="p-1 text-gray-500 hover:bg-gray-100 rounded transition-colors"
+                              className={`p-1 rounded-lg transition-colors ${darkMode ? 'text-gray-400 hover:bg-gray-700' : 'text-gray-500 hover:bg-gray-100'}`}
                               title="Voir les détails"
                             >
                               <i className="bi bi-eye text-sm"></i>
                             </button>
                             <button 
                               onClick={() => handleDelete(item.id)} 
-                              className="text-gray-400 hover:text-red-600 transition-colors"
-                              title="Supprimer"
+                              className={`p-1 rounded-lg transition-colors ${darkMode ? 'text-gray-500 hover:text-red-400 hover:bg-red-900/20' : 'text-gray-400 hover:text-red-600'}`}
+                              title={t('common.delete')}
                             >
                               <i className="bi bi-trash text-sm"></i>
                             </button>
@@ -832,30 +808,41 @@ const Demandes = () => {
         </div>
       )}
 
-      {/* Create Modal - Form */}
+      {/* Create Modal */}
       {showCreate && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex justify-between items-center">
+          <div className={`rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto ${
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            <div className={`sticky top-0 px-6 py-4 border-b flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''} ${
+              darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'
+            }`}>
               <div>
-                <h3 className="text-lg font-semibold text-gray-900">
+                <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
                   {demandeInfo.title}
                 </h3>
-                <p className="text-xs text-gray-500 mt-0.5">{demandeInfo.desc}</p>
+                <p className={`text-xs mt-0.5 ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{demandeInfo.desc}</p>
               </div>
-              <button onClick={() => { setShowCreate(false); resetForm(); }} className="text-gray-400 hover:text-gray-600">
+              <button onClick={() => { setShowCreate(false); resetForm(); }} className={`transition-colors ${
+                darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'
+              }`}>
                 <i className="bi bi-x-lg text-lg"></i>
               </button>
             </div>
             
             <form onSubmit={handleCreate} className="p-6 space-y-5">
-              {/* Common fields */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Titre *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Titre *
+                </label>
                 <input
                   required
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   placeholder="Ex: Demande de stage d'été 2024"
                   value={formData.title}
                   onChange={(e) => setFormData({...formData, title: e.target.value})}
@@ -863,33 +850,43 @@ const Demandes = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Message / Description *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Message / Description *
+                </label>
                 <textarea
                   required
                   rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm resize-none"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm resize-none ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   placeholder="Décrivez votre demande en détail..."
                   value={formData.message}
                   onChange={(e) => setFormData({...formData, message: e.target.value})}
                 ></textarea>
               </div>
 
-              {/* Dynamic fields based on user role */}
               {renderFormFields()}
 
-              {/* Form Actions */}
-              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
+              <div className={`flex justify-end gap-3 pt-4 border-t ${isRTL ? 'flex-row-reverse' : ''} ${
+                darkMode ? 'border-gray-700' : 'border-gray-100'
+              }`}>
                 <button
                   type="button"
                   onClick={() => { setShowCreate(false); resetForm(); }}
-                  className="px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 rounded-md transition-colors"
+                  className={`px-4 py-2 text-sm rounded-xl transition-colors ${
+                    darkMode 
+                      ? 'text-gray-400 hover:bg-gray-700' 
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
                 >
-                  Annuler
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit"
                   disabled={submitLoading}
-                  className="px-5 py-2 bg-navy-800 text-white text-sm font-medium rounded hover:bg-navy-900 transition-colors disabled:opacity-50 flex items-center gap-2"
+                  className="px-5 py-2 bg-orange-500 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 transition-all duration-200 disabled:opacity-50 flex items-center gap-2 shadow-md"
                 >
                   {submitLoading ? (
                     <>
@@ -909,43 +906,63 @@ const Demandes = () => {
       {/* Admin Message Modal */}
       {showMessageModal && selectedDemande && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-lg w-full max-w-md">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">Envoyer un message</h3>
-              <button onClick={() => setShowMessageModal(false)} className="text-gray-400 hover:text-gray-600">
+          <div className={`rounded-2xl w-full max-w-md ${
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            <div className={`px-6 py-4 border-b flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''} ${
+              darkMode ? 'border-gray-700' : 'border-gray-100'
+            }`}>
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                Envoyer un message
+              </h3>
+              <button onClick={() => setShowMessageModal(false)} className={`transition-colors ${
+                darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'
+              }`}>
                 <i className="bi bi-x-lg"></i>
               </button>
             </div>
             <form onSubmit={handleSendMessage} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Titre de la notification *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Titre de la notification *
+                </label>
                 <input
                   required
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   placeholder="Ex: Document manquant"
                   value={messageForm.title}
                   onChange={(e) => setMessageForm({...messageForm, title: e.target.value})}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Message *
+                </label>
                 <textarea
                   required
                   rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm resize-none"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm resize-none ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   placeholder="Veuillez fournir votre message..."
                   value={messageForm.message}
                   onChange={(e) => setMessageForm({...messageForm, message: e.target.value})}
                 ></textarea>
               </div>
-              <div className="pt-4 flex flex-col">
+              <div className="pt-4">
                 <button
                   type="submit"
                   disabled={messageLoading}
-                  className="w-full py-2 bg-navy-800 text-white text-sm font-medium rounded hover:bg-navy-900 transition-colors disabled:opacity-50"
+                  className="w-full py-2.5 bg-orange-500 text-white text-sm font-semibold rounded-xl hover:bg-orange-600 transition-all duration-200 disabled:opacity-50 shadow-md"
                 >
-                  {messageLoading ? 'Envoi...' : 'Envoyer la notification'}
+                  {messageLoading ? t('common.sending') : t('demandes.send_notification')}
                 </button>
               </div>
             </form>
@@ -953,70 +970,77 @@ const Demandes = () => {
         </div>
       )}
 
+      {/* Bulk Message Modal */}
       {showBulkMessageModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50">
-          <div className="bg-white rounded-lg w-full max-w-md">
-            <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-gray-900">Envoyer une notification groupée</h3>
-              <button onClick={() => setShowBulkMessageModal(false)} className="text-gray-400 hover:text-gray-600">
+          <div className={`rounded-2xl w-full max-w-md ${
+            darkMode ? 'bg-gray-800' : 'bg-white'
+          }`}>
+            <div className={`px-6 py-4 border-b flex justify-between items-center ${isRTL ? 'flex-row-reverse' : ''} ${
+              darkMode ? 'border-gray-700' : 'border-gray-100'
+            }`}>
+              <h3 className={`text-lg font-semibold ${darkMode ? 'text-white' : 'text-gray-900'}`}>
+                Envoyer une notification groupée
+              </h3>
+              <button onClick={() => setShowBulkMessageModal(false)} className={`transition-colors ${
+                darkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-400 hover:text-gray-600'
+              }`}>
                 <i className="bi bi-x-lg"></i>
               </button>
             </div>
             <form onSubmit={handleSendBulkMessage} className="p-6 space-y-4">
               <div>
-                <p className="text-sm text-gray-600">Utilisateurs sélectionnés : {selectedUserIds.length}</p>
+                <p className={`text-sm ${darkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                  Utilisateurs sélectionnés : {selectedUserIds.length}
+                </p>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Titre de la notification *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Titre de la notification *
+                </label>
                 <input
                   required
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   placeholder="Ex: Mise à jour importante"
                   value={bulkMessageForm.title}
                   onChange={(e) => setBulkMessageForm({...bulkMessageForm, title: e.target.value})}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Message *</label>
+                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                  Message *
+                </label>
                 <textarea
                   required
                   rows="4"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:border-navy-800 text-sm resize-none"
+                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm resize-none ${
+                    darkMode 
+                      ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400'
+                      : 'bg-gray-50 border-gray-200 text-gray-900'
+                  }`}
                   placeholder="Entrez le message à envoyer aux utilisateurs sélectionnés..."
                   value={bulkMessageForm.message}
                   onChange={(e) => setBulkMessageForm({...bulkMessageForm, message: e.target.value})}
                 ></textarea>
               </div>
-              <div className="pt-4 flex flex-col">
+              <div className="pt-4">
                 <button
                   type="submit"
                   disabled={bulkMessageLoading}
-                  className="w-full py-2 bg-purple-700 text-white text-sm font-medium rounded hover:bg-purple-800 transition-colors disabled:opacity-50"
+                  className="w-full py-2.5 bg-purple-600 text-white text-sm font-semibold rounded-xl hover:bg-purple-700 transition-all duration-200 disabled:opacity-50 shadow-md"
                 >
-                  {bulkMessageLoading ? 'Envoi...' : 'Envoyer la notification'}
+                  {bulkMessageLoading ? t('common.sending') : t('demandes.send_notification')}
                 </button>
               </div>
             </form>
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .bg-navy-50 { background-color: #e8edf5; }
-        .bg-navy-800 { background-color: #0f2b4d; }
-        .bg-navy-900 { background-color: #0a1e36; }
-        .text-navy-800 { color: #0f2b4d; }
-        .hover\\:bg-navy-900:hover { background-color: #0a1e36; }
-        .focus\\:border-navy-800:focus { border-color: #0f2b4d; }
-        .border-navy-800 { border-color: #0f2b4d; }
-        .line-clamp-1 {
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      `}</style>
     </div>
   );
 };

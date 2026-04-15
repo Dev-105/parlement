@@ -1,0 +1,48 @@
+```
+frontend
+├──public
+│   ├──bannerParlement.png
+│   ├──favicon.svg
+│   ├──icons.svg
+│   ├──parlement.png
+│   └──royaumeDuMarocLogo.png
+├──src
+│   ├──assets
+│   │   └──package
+│   │   │   ├──font
+│   │   │   │   ├──fonts
+│   │   │   │   │   ├──bootstrap-icons.woff
+│   │   │   │   │   └──bootstrap-icons.woff2
+│   │   │   │   ├──bootstrap-icons.css
+│   │   │   │   ├──bootstrap-icons.json
+│   │   │   │   ├──bootstrap-icons.min.css
+│   │   │   │   └──bootstrap-icons.scss
+│   ├──components
+│   │   ├──Layout.jsx
+│   │   ├──Navbar.jsx
+│   │   └──Sidebar.jsx
+│   ├──context
+│   │   └──AuthContext.jsx
+│   ├──pages
+│   │   ├──Dashboard.jsx
+│   │   ├──DemandeDetail.jsx
+│   │   ├──Demandes.jsx
+│   │   ├──Landing.jsx
+│   │   ├──Login.jsx
+│   │   ├──Notifications.jsx
+│   │   ├──Profile.jsx
+│   │   └──Register.jsx
+│   ├──services
+│   │   └──api.js
+│   ├──App.jsx
+│   ├──i18n.js
+│   ├──index.css
+│   └──main.jsx
+├──eslint.config.js
+├──index.html
+├──package-lock.json
+├──package.json
+├──README.md
+├──vite.config.js
+└──.gitignore
+```
