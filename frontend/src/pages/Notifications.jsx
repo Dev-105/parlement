@@ -76,8 +76,16 @@ const Notifications = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <i className={`bi bi-hourglass-split text-3xl animate-pulse ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}></i>
+      <div className="max-w-3xl mx-auto space-y-4 mt-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className={`p-4 rounded-xl flex gap-4 animate-pulse ${darkMode ? 'bg-gray-800' : 'bg-white shadow-sm'}`}>
+            <div className={`w-12 h-12 rounded-full flex-shrink-0 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+            <div className="flex-1 space-y-3 py-1">
+              <div className={`h-4 w-3/4 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+              <div className={`h-3 w-1/2 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+            </div>
+          </div>
+        ))}
       </div>
     );
   }

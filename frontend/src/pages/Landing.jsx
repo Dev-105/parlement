@@ -6,8 +6,11 @@ const Landing = () => {
   const { t } = useTranslation();
   const [scrolled, setScrolled] = useState(false);
   const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [initialLoading, setInitialLoading] = useState(true);
 
   useEffect(() => {
+    const timer = setTimeout(() => setInitialLoading(false), 1500);
+    
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
@@ -42,6 +45,59 @@ const Landing = () => {
     { name: 'Mohamed Ali', role: 'Chercheur', text: 'Accès rapide aux archives parlementaires. Un gain de temps considérable pour mes recherches académiques.', rating: 5 },
     { name: 'Karim Benjelloun', role: 'Étudiant', text: 'Processus clair et suivi transparent. Mon dossier de stage a été traité en moins de 48 heures.', rating: 5 }
   ];
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <nav className="fixed top-0 w-full z-50 bg-white/95 py-6 animate-pulse border-b border-gray-100">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 bg-gray-200 rounded-full"></div>
+              <div className="hidden sm:block space-y-2">
+                 <div className="h-5 w-24 bg-gray-200 rounded-lg"></div>
+                 <div className="h-3 w-16 bg-gray-200 rounded-lg"></div>
+              </div>
+            </div>
+            <div className="hidden md:flex gap-8">
+              {[1, 2, 3, 4].map(i => <div key={i} className="h-4 w-16 bg-gray-100 rounded-lg"></div>)}
+            </div>
+            <div className="flex gap-3">
+              <div className="h-10 w-24 bg-gray-100 rounded-full"></div>
+              <div className="h-10 w-32 bg-orange-100 rounded-full"></div>
+            </div>
+          </div>
+        </nav>
+
+        <section className="relative min-h-screen flex items-center pt-20 overflow-hidden animate-pulse">
+          <div className="absolute inset-0 bg-gradient-to-br from-orange-50/50 via-white to-orange-50/50"></div>
+          <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8 py-20 w-full">
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              <div>
+                <div className="h-8 w-32 bg-orange-100 rounded-full mb-6"></div>
+                <div className="space-y-4 mb-8">
+                  <div className="h-16 w-3/4 bg-gray-200 rounded-xl"></div>
+                  <div className="h-16 w-1/2 bg-orange-100 rounded-xl"></div>
+                </div>
+                <div className="space-y-3 mb-8">
+                  <div className="h-4 w-full bg-gray-100 rounded-lg"></div>
+                  <div className="h-4 w-4/5 bg-gray-100 rounded-lg"></div>
+                  <div className="h-4 w-3/5 bg-gray-100 rounded-lg"></div>
+                </div>
+                <div className="flex gap-4 mb-12">
+                  <div className="h-14 w-48 bg-orange-100 rounded-full"></div>
+                  <div className="h-14 w-48 bg-gray-100 rounded-full"></div>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[1, 2, 3, 4].map(i => <div key={i} className="h-28 bg-orange-50/50 rounded-2xl border border-orange-100"></div>)}
+                </div>
+              </div>
+              <div className="hidden lg:block h-[500px] w-full bg-gray-100 rounded-3xl border border-gray-200"></div>
+            </div>
+          </div>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">

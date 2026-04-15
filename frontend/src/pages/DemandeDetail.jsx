@@ -249,8 +249,25 @@ const DemandeDetail = () => {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center h-64">
-        <i className={`bi bi-hourglass-split text-3xl animate-pulse ${darkMode ? 'text-gray-600' : 'text-gray-400'}`}></i>
+      <div className="max-w-4xl mx-auto space-y-6 animate-pulse">
+        <div className={`h-8 w-48 rounded-lg ${darkMode ? 'bg-gray-800' : 'bg-white shadow-sm'}`}></div>
+        <div className={`p-6 rounded-2xl space-y-6 ${darkMode ? 'bg-gray-800' : 'bg-white shadow-sm'}`}>
+          <div className="flex justify-between items-start">
+            <div className="space-y-3 w-full">
+              <div className={`h-6 w-1/3 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+              <div className={`h-4 w-1/4 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+            </div>
+            <div className={`w-24 h-8 rounded-full flex-shrink-0 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+          </div>
+          <div className={`grid sm:grid-cols-2 gap-6 pt-6 border-t ${darkMode ? 'border-gray-700' : 'border-gray-100'}`}>
+            <div className="space-y-4">
+              {[1, 2, 3].map(i => <div key={i} className={`h-12 w-full rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}></div>)}
+            </div>
+            <div className="space-y-4">
+              {[1, 2].map(i => <div key={i} className={`h-12 w-full rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-gray-100'}`}></div>)}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

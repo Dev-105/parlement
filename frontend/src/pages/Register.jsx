@@ -24,6 +24,12 @@ const Register = () => {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [initialLoading, setInitialLoading] = useState(true);
+
+  React.useEffect(() => {
+    const timer = setTimeout(() => setInitialLoading(false), 1200);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleRoleSelect = (r) => {
     setRole(r);
@@ -67,6 +73,37 @@ const Register = () => {
       setLoading(false);
     }
   };
+
+  if (initialLoading) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <img src="/parlement.png" alt="Parlement Background" className="absolute top-0 left-0 w-full h-full object-cover opacity-5" />
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-orange-50 rounded-full blur-3xl opacity-60"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-orange-50 rounded-full blur-3xl opacity-40"></div>
+        </div>
+        <div className="sm:mx-auto sm:w-full sm:max-w-3xl relative z-10 animate-pulse">
+          <div className="flex justify-center mb-6"><div className="h-14 w-14 bg-gray-200 rounded-full"></div></div>
+          <div className="h-8 w-48 bg-gray-200 rounded-lg mx-auto mb-3"></div>
+          <div className="h-4 w-64 bg-gray-200 rounded-lg mx-auto"></div>
+        </div>
+        <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-3xl relative z-10 animate-pulse">
+          <div className="bg-white py-8 px-6 shadow-xl rounded-2xl border border-gray-100 sm:px-10">
+            <div className="grid sm:grid-cols-2 gap-5">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="p-6 border-2 border-gray-100 rounded-xl space-y-4">
+                  <div className="w-12 h-12 bg-orange-50 rounded-xl"></div>
+                  <div className="h-6 w-32 bg-gray-200 rounded-lg"></div>
+                  <div className="h-4 w-full bg-gray-100 rounded-lg"></div>
+                  <div className="h-4 w-2/3 bg-gray-100 rounded-lg"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative">

@@ -4,6 +4,79 @@ import { useParams } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
 
+// Skeleton Components
+const ProfileSkeleton = ({ darkMode, isRTL }) => (
+  <div className={`max-w-5xl mx-auto space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+    {/* Header Skeleton */}
+    <div>
+      <div className={`w-48 h-8 rounded-lg animate-pulse ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+      <div className={`w-64 h-4 rounded mt-1 animate-pulse ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+    </div>
+
+    {/* Profile Header Skeleton */}
+    <div className={`rounded-2xl overflow-hidden animate-pulse ${
+      darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'
+    }`}>
+      {/* Banner Skeleton */}
+      <div className={`h-32 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+      
+      {/* Avatar & Info Skeleton */}
+      <div className={`px-8 pb-8 relative -mt-12 flex flex-col sm:flex-row items-center sm:items-end gap-6 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
+        <div className={`w-28 h-28 rounded-full border-4 ${darkMode ? 'border-gray-800' : 'border-white'} ${
+          darkMode ? 'bg-gray-700' : 'bg-gray-200'
+        } shadow-lg shrink-0`}></div>
+        <div className="flex-1 pb-2">
+          <div className={`w-48 h-7 rounded-lg mx-auto sm:mx-0 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+          <div className={`w-32 h-5 rounded-lg mt-2 mx-auto sm:mx-0 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+        </div>
+        <div className={`w-24 h-9 rounded-xl ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+      </div>
+    </div>
+
+    {/* Two Column Grid Skeleton */}
+    <div className="grid md:grid-cols-2 gap-6">
+      {/* Personal Info Card Skeleton */}
+      <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'}`}>
+        <div className={`flex items-center gap-2 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <div className={`w-6 h-6 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+          <div className={`w-32 h-6 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5, 6].map(i => (
+            <div key={i} className={`flex justify-between items-center pb-3 border-b ${isRTL ? 'flex-row-reverse' : ''} ${
+              darkMode ? 'border-gray-700' : 'border-gray-100'
+            }`}>
+              <div className={`w-24 h-4 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+              <div className={`w-32 h-4 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Security Card Skeleton */}
+      <div className={`rounded-2xl p-6 ${darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'}`}>
+        <div className={`flex items-center gap-2 mb-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          <div className={`w-6 h-6 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+          <div className={`w-24 h-6 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3].map(i => (
+            <div key={i} className={`flex justify-between items-center pb-3 border-b ${isRTL ? 'flex-row-reverse' : ''} ${
+              darkMode ? 'border-gray-700' : 'border-gray-100'
+            }`}>
+              <div>
+                <div className={`w-32 h-4 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+                <div className={`w-48 h-3 rounded mt-1 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+              </div>
+              <div className={`w-16 h-7 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  </div>
+);
+
 const Profile = () => {
   const { t, i18n } = useTranslation();
   const { id: profileUserId } = useParams();
@@ -211,12 +284,14 @@ const Profile = () => {
     };
   }, [selectedProfileImage, selectedBannerImage]);
 
+  // Show skeleton loading while loading profile (admin view)
   if (isAdminViewing && isLoadingProfile) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <i className="bi bi-arrow-repeat animate-spin text-3xl text-orange-500"></i>
-      </div>
-    );
+    return <ProfileSkeleton darkMode={darkMode} isRTL={isRTL} />;
+  }
+
+  // Show skeleton loading while user is not loaded yet
+  if (!displayUser && !isLoadingProfile) {
+    return <ProfileSkeleton darkMode={darkMode} isRTL={isRTL} />;
   }
 
   if (isAdminViewing && !displayUser) {

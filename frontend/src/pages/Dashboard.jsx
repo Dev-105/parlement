@@ -522,9 +522,19 @@ const Dashboard = () => {
           </div>
           <div className="p-5">
             {loading ? (
-              <div className="text-center py-8">
-                <i className={`bi bi-hourglass-split text-2xl animate-pulse ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}></i>
-                <p className={`text-sm mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t('dashboard.loading')}</p>
+              <div className="space-y-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className={`flex justify-between items-center p-3 rounded-xl animate-pulse ${darkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-8 h-8 rounded-lg ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                      <div className="space-y-2">
+                        <div className={`h-3 w-32 rounded ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                        <div className={`h-2 w-20 rounded ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                      </div>
+                    </div>
+                    <div className={`h-5 w-16 rounded-full ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                  </div>
+                ))}
               </div>
             ) : recentDemandes.length === 0 ? (
               <div className="text-center py-8">

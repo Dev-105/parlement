@@ -649,11 +649,21 @@ const Demandes = () => {
 
       {/* Demande List */}
       {loading ? (
-        <div className={`rounded-2xl p-12 text-center ${
-          darkMode ? 'bg-gray-800 border border-gray-700' : 'bg-white border border-gray-100'
-        }`}>
-          <i className={`bi bi-hourglass-split text-3xl animate-pulse ${darkMode ? 'text-gray-600' : 'text-gray-300'}`}></i>
-          <p className={`text-sm mt-2 ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{t('common.loading')}</p>
+        <div className={`rounded-2xl overflow-hidden shadow-sm ${darkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-100'}`}>
+          <div className="p-5 space-y-4">
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div key={i} className={`flex justify-between items-center p-3 animate-pulse rounded-xl ${darkMode ? 'bg-gray-700/30' : 'bg-gray-50'}`}>
+                <div className="flex items-center gap-4">
+                  <div className={`w-10 h-10 rounded-lg ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                  <div className="space-y-2">
+                    <div className={`h-4 w-48 rounded ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                    <div className={`h-3 w-32 rounded ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+                  </div>
+                </div>
+                <div className={`h-8 w-24 rounded-full flex-shrink-0 ${darkMode ? 'bg-gray-600' : 'bg-gray-200'}`}></div>
+              </div>
+            ))}
+          </div>
         </div>
       ) : filteredData.length === 0 ? (
         <div className={`rounded-2xl p-12 text-center ${

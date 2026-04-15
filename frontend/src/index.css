@@ -23,3 +23,8 @@
 .btn-primary {
   @apply bg-primary-900 hover:bg-primary-800 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 shadow-sm disabled:opacity-50;
 }
+
+
+::-webkit-scrollbar{
+  display: none !important;
+}
