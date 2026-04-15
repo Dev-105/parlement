@@ -30,6 +30,11 @@ class User extends Authenticatable
         ];
     }
 
+    public function review()
+    {
+        return $this->hasOne(UserReview::class);
+    }
+
     public function demandes()
     {
         return $this->hasMany(Demande::class);

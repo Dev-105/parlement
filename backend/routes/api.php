@@ -16,6 +16,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile', [AuthController::class, 'updateProfile']);
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
+    Route::get('/reviews/me', [\App\Http\Controllers\ReviewController::class, 'checkReview']);
+    Route::post('/reviews', [\App\Http\Controllers\ReviewController::class, 'store']);
+
     Route::get('/demandes', [DemandeController::class, 'index']);
     Route::post('/demandes', [DemandeController::class, 'store']);
     Route::get('/demandes/{id}', [DemandeController::class, 'show']);

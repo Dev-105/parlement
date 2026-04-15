@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
+import ReviewModal from '../components/ReviewModal';
 
 const Demandes = () => {
   const { t, i18n } = useTranslation();
@@ -17,6 +18,7 @@ const Demandes = () => {
   const [darkMode, setDarkMode] = useState(false);
   
   const [showCreate, setShowCreate] = useState(false);
+  const [showReviewModal, setShowReviewModal] = useState(false);
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [showBulkMessageModal, setShowBulkMessageModal] = useState(false);
   const [bulkMessageForm, setBulkMessageForm] = useState({ title: '', message: '' });
@@ -139,6 +141,16 @@ const Demandes = () => {
       await api.post('/demandes', formDataToSend);
       setShowCreate(false);
       resetForm();
+      
+      try {
+        const reviewRes = await api.get('/reviews/me');
+        if (!reviewRes.data.has_reviewed) {
+          setShowReviewModal(true);
+        }
+      } catch (err) {
+        console.error('Error checking review status', err);
+      }
+
       fetchDemandes();
     } catch (err) {
       console.error('Error creating demande:', err);
@@ -1031,6 +1043,13 @@ const Demandes = () => {
             </form>
           </div>
         </div>
+      )}
+
+      {showReviewModal && (
+        <ReviewModal 
+          onClose={() => setShowReviewModal(false)}
+          onSuccess={() => setShowReviewModal(false)}
+        />
       )}
     </div>
   );
