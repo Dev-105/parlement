@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import api from '../services/api';
 
 const Landing = () => {
   const { t } = useTranslation();
@@ -8,6 +9,10 @@ const Landing = () => {
   const [activeTestimonial, setActiveTestimonial] = useState(0);
   const [initialLoading, setInitialLoading] = useState(true);
 
+  const [testimonials, setTestimonials] = useState([]);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  // Initial setup
   useEffect(() => {
     const timer = setTimeout(() => setInitialLoading(false), 1500);
     
@@ -16,15 +21,35 @@ const Landing = () => {
     };
     window.addEventListener('scroll', handleScroll);
     
-    const interval = setInterval(() => {
-      setActiveTestimonial((prev) => (prev + 1) % 3);
-    }, 5000);
+    // Fetch reviews
+    const fetchReviews = async () => {
+      try {
+        const res = await api.get('/reviews');
+        setTestimonials(res.data);
+      } catch (err) {
+        console.error('Failed to fetch reviews', err);
+      } finally {
+        setLoadingReviews(false);
+      }
+    };
+    fetchReviews();
     
     return () => {
       window.removeEventListener('scroll', handleScroll);
-      clearInterval(interval);
+      clearTimeout(timer);
     };
   }, []);
+
+  // Auto-slide effect
+  useEffect(() => {
+    if (testimonials.length <= 1) return;
+    
+    const interval = setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+    
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
 
   const requestTypes = [
     { icon: 'bi bi-briefcase-fill', title: 'Stages Professionnels', desc: 'Opportunités de formation pratique au sein du parlement' },
@@ -40,11 +65,15 @@ const Landing = () => {
     { value: '24/7', label: 'Support disponible', icon: 'bi bi-headset' }
   ];
 
-  const testimonials = [
-    { name: 'Fatima Zahra', role: 'Journaliste', text: 'Plateforme exceptionnelle qui a grandement facilité mon accréditation pour couvrir les sessions importantes.', rating: 5 },
-    { name: 'Mohamed Ali', role: 'Chercheur', text: 'Accès rapide aux archives parlementaires. Un gain de temps considérable pour mes recherches académiques.', rating: 5 },
-    { name: 'Karim Benjelloun', role: 'Étudiant', text: 'Processus clair et suivi transparent. Mon dossier de stage a été traité en moins de 48 heures.', rating: 5 }
-  ];
+  const getInitials = (name) => {
+    if (!name) return '';
+    const parts = name.trim().split(' ');
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+    }
+    return name[0].toUpperCase();
+  };
+
 
   if (initialLoading) {
     return (
@@ -339,80 +368,93 @@ const Landing = () => {
           </div>
           
           <div className="relative max-w-5xl mx-auto">
-            {/* Testimonial Cards Container */}
-            <div className="relative min-h-[400px]">
-              {testimonials.map((testimonial, idx) => (
-                <div 
-                  key={idx}
-                  className={`absolute inset-0 transition-all duration-700 ease-in-out ${
-                    activeTestimonial === idx 
-                      ? 'opacity-100 translate-x-0 z-10' 
-                      : 'opacity-0 translate-x-full z-0'
-                  }`}
-                >
-                  <div className="bg-gradient-to-br from-orange-50 to-white rounded-3xl p-10 shadow-xl border border-orange-100">
-                    {/* Quote Icon */}
-                    <div className="absolute top-8 right-8">
-                      <i className="bi bi-quote text-7xl text-orange-200"></i>
-                    </div>
-                    
-                    {/* Rating Stars */}
-                    <div className="flex gap-1 mb-6">
-                      {[...Array(testimonial.rating)].map((_, i) => (
-                        <i key={i} className="bi bi-star-fill text-orange-400 text-lg"></i>
-                      ))}
-                    </div>
-                    
-                    {/* Testimonial Text */}
-                    <p className="text-gray-700 text-xl leading-relaxed mb-8 relative z-10">
-                      "{testimonial.text}"
-                    </p>
-                    
-                    {/* Author Info */}
-                    <div className="flex items-center gap-4 pt-6 border-t border-orange-100">
-                      <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                        {testimonial.name[0]}
+            {loadingReviews ? (
+              <div className="flex justify-center items-center min-h-[400px]">
+                <div className="w-12 h-12 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : testimonials.length === 0 ? (
+              <div className="text-center py-20 bg-gray-50 rounded-3xl border border-gray-100 flex flex-col justify-center items-center min-h-[400px]">
+                <i className="bi bi-chat-square-text text-5xl text-gray-300 mb-4 block"></i>
+                <p className="text-gray-500 text-lg">Aucun témoignage pour le moment.</p>
+              </div>
+            ) : (
+              <>
+                {/* Testimonial Cards Container */}
+                <div className="relative min-h-[400px]">
+                  {testimonials.map((testimonial, idx) => (
+                    <div 
+                      key={idx}
+                      className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                        activeTestimonial === idx 
+                          ? 'opacity-100 translate-x-0 z-10' 
+                          : 'opacity-0 translate-x-full z-0'
+                      }`}
+                    >
+                      <div className="bg-gradient-to-br from-orange-50 to-white rounded-3xl p-10 shadow-xl border border-orange-100">
+                        {/* Quote Icon */}
+                        <div className="absolute top-8 right-8">
+                          <i className="bi bi-quote text-7xl text-orange-200"></i>
+                        </div>
+                        
+                        {/* Rating Stars */}
+                        <div className="flex gap-1 mb-6">
+                          {[...Array(testimonial.rating)].map((_, i) => (
+                            <i key={i} className="bi bi-star-fill text-orange-400 text-lg"></i>
+                          ))}
+                        </div>
+                        
+                        {/* Testimonial Text */}
+                        <p className="text-gray-700 text-xl leading-relaxed mb-8 relative z-10">
+                          "{testimonial.text}"
+                        </p>
+                        
+                        {/* Author Info */}
+                        <div className="flex items-center gap-4 pt-6 border-t border-orange-100">
+                          <div className="w-14 h-14 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                            {getInitials(testimonial.name)}
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-gray-900 text-lg">{testimonial.name}</h4>
+                            <p className="text-orange-600 text-sm font-medium">{testimonial.role || 'Citoyen'}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <h4 className="font-bold text-gray-900 text-lg">{testimonial.name}</h4>
-                        <p className="text-orange-600 text-sm font-medium">{testimonial.role}</p>
-                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-            
-            {/* Navigation Dots */}
-            <div className="flex justify-center gap-3 mt-12">
-              {testimonials.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setActiveTestimonial(idx)}
-                  className={`transition-all duration-300 ${
-                    activeTestimonial === idx 
-                      ? 'w-10 h-2.5 bg-orange-500 rounded-full' 
-                      : 'w-2.5 h-2.5 bg-gray-300 rounded-full hover:bg-orange-300'
-                  }`}
-                />
-              ))}
-            </div>
-            
-            {/* Navigation Arrows */}
-            <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between pointer-events-none px-4">
-              <button 
-                onClick={() => setActiveTestimonial((activeTestimonial - 1 + testimonials.length) % testimonials.length)}
-                className="pointer-events-auto w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-orange-500 hover:text-orange-600 transition-all duration-300 border border-orange-100"
-              >
-                <i className="bi bi-chevron-left text-xl"></i>
-              </button>
-              <button 
-                onClick={() => setActiveTestimonial((activeTestimonial + 1) % testimonials.length)}
-                className="pointer-events-auto w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-orange-500 hover:text-orange-600 transition-all duration-300 border border-orange-100"
-              >
-                <i className="bi bi-chevron-right text-xl"></i>
-              </button>
-            </div>
+                
+                {/* Navigation Dots */}
+                <div className="flex justify-center gap-3 mt-12">
+                  {testimonials.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveTestimonial(idx)}
+                      className={`transition-all duration-300 ${
+                        activeTestimonial === idx 
+                          ? 'w-10 h-2.5 bg-orange-500 rounded-full' 
+                          : 'w-2.5 h-2.5 bg-gray-300 rounded-full hover:bg-orange-300'
+                      }`}
+                    />
+                  ))}
+                </div>
+                
+                {/* Navigation Arrows */}
+                <div className="absolute top-1/2 -translate-y-1/2 left-0 right-0 flex justify-between pointer-events-none px-4">
+                  <button 
+                    onClick={() => setActiveTestimonial((activeTestimonial - 1 + testimonials.length) % testimonials.length)}
+                    className="pointer-events-auto w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-orange-500 hover:text-orange-600 transition-all duration-300 border border-orange-100"
+                  >
+                    <i className="bi bi-chevron-left text-xl"></i>
+                  </button>
+                  <button 
+                    onClick={() => setActiveTestimonial((activeTestimonial + 1) % testimonials.length)}
+                    className="pointer-events-auto w-10 h-10 bg-white rounded-full shadow-md hover:shadow-lg flex items-center justify-center text-orange-500 hover:text-orange-600 transition-all duration-300 border border-orange-100"
+                  >
+                    <i className="bi bi-chevron-right text-xl"></i>
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

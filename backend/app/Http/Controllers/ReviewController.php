@@ -6,6 +6,25 @@ use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
+    public function index()
+    {
+        $reviews = \App\Models\UserReview::with('user:id,first_name,last_name,role')
+            ->whereNotNull('comment')
+            ->orderByDesc('rating')
+            ->orderByDesc('created_at')
+            ->take(10)
+            ->get()
+            ->map(function ($review) {
+                return [
+                    'name' => trim($review->user->first_name . ' ' . $review->user->last_name),
+                    'role' => class_basename($review->user->role) ? ucfirst($review->user->role) : 'Membres',
+                    'text' => $review->comment,
+                    'rating' => $review->rating
+                ];
+            });
+
+        return response()->json($reviews);
+    }
     public function checkReview(Request $request)
     {
         $hasReviewed = $request->user()->review()->exists();
