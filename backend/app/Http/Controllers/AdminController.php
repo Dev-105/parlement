@@ -3,7 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Demande;
+use App\Models\User;
 use App\Http\Resources\DemandeResource;
+use App\Http\Resources\UserResource;
+use App\Notifications\AdminMessageNotification;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -37,4 +41,91 @@ class AdminController extends Controller
             'data' => new DemandeResource($demande)
         ]);
     }
+
+    public function showUser(Request $request, $id): JsonResponse
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+                'errors' => []
+            ], 404);
+        }
+
+        return response()->json([
+            'message' => 'User retrieved successfully',
+            'data' => new UserResource($user)
+        ]);
+    }
+
+    public function notifyUser(Request $request, $id): JsonResponse
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'message' => 'required|string'
+        ]);
+
+        $user = \App\Models\User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'message' => 'User not found',
+                'errors' => []
+            ], 404);
+        }
+
+        $user->notify(new AdminMessageNotification($request->title, $request->message));
+
+        return response()->json([
+            'message' => 'Notification sent successfully',
+            'data' => []
+        ]);
+    }
+
+    public function notifyUsers(Request $request): JsonResponse
+    {
+        $request->validate([
+            'user_ids' => 'required|array|min:1',
+            'user_ids.*' => 'integer|exists:users,id',
+            'title' => 'required|string|max:255',
+            'message' => 'required|string'
+        ]);
+
+        $userIds = array_unique($request->user_ids);
+        $users = User::whereIn('id', $userIds)->get();
+
+        if ($users->isEmpty()) {
+            return response()->json([
+                'message' => 'No users found for notification',
+                'errors' => []
+            ], 404);
+        }
+
+        Notification::send($users, new AdminMessageNotification($request->title, $request->message));
+
+        return response()->json([
+            'message' => 'Notifications sent successfully',
+            'data' => []
+        ]);
+    }
+
+    public function sendNotification(Request $request, $id): JsonResponse
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        $user = User::findOrFail($id);
+        
+        // Send the notification with title and message
+        $user->notify(new AdminMessageNotification($request->title, $request->message));
+
+        return response()->json([
+            'message' => 'Notification sent successfully',
+            'data' => []
+        ]);
+    }
+
 }

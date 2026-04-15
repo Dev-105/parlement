@@ -13,6 +13,8 @@ class UserResource extends JsonResource
             'id' => $this->id,
             'first_name' => $this->first_name,
             'last_name' => $this->last_name,
+            'cin' => $this->cin,
+            'name' => $this->first_name . ' ' . $this->last_name,
             'email' => $this->email,
             'phone' => $this->phone,
             'date_of_birth' => $this->date_of_birth,
@@ -24,6 +26,9 @@ class UserResource extends JsonResource
             'description' => $this->description,
             'role' => $this->role,
             'status' => $this->status,
+            'profile_image' => $this->profile_image ? asset('storage/' . $this->profile_image) : null,
+            'banner_image' => $this->banner_image ? asset('storage/' . $this->banner_image) : null,
+            'cv_file' => $this->cv_file ? asset('storage/' . $this->cv_file) : null,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

@@ -9,6 +9,7 @@ use App\Http\Resources\UserResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -75,6 +76,76 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'User profile',
             'data' => new UserResource($request->user())
+        ]);
+    }
+
+public function updateProfile(Request $request): JsonResponse
+{
+    $request->validate([
+        'first_name' => 'required|string|max:255',
+        'last_name' => 'required|string|max:255',
+        'phone' => 'nullable|string|max:255',
+        'city' => 'nullable|string|max:255',
+        'address_line' => 'nullable|string|max:255',
+        'profile_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+        'banner_image' => 'nullable|image|mimes:jpg,jpeg,png|max:5120',
+    ]);
+
+    $user = $request->user();
+
+    // Handle profile image upload
+    if ($request->hasFile('profile_image')) {
+        if ($user->profile_image) {
+            Storage::disk('public')->delete($user->profile_image);
+        }
+        $path = $request->file('profile_image')->store('profile_images', 'public');
+        $user->profile_image = $path;
+    }
+
+    // Handle banner image upload
+    if ($request->hasFile('banner_image')) {
+        if ($user->banner_image) {
+            Storage::disk('public')->delete($user->banner_image);
+        }
+        $path = $request->file('banner_image')->store('banner_images', 'public');
+        $user->banner_image = $path;
+    }
+
+    // Update user data
+    $user->first_name = $request->first_name;
+    $user->last_name = $request->last_name;
+    $user->phone = $request->phone;
+    $user->city = $request->city;
+    $user->address_line = $request->address_line;
+    $user->save();
+
+    return response()->json([
+        'message' => 'Profile updated successfully',
+        'data' => new UserResource($user)
+    ]);
+}
+
+    public function changePassword(Request $request): JsonResponse
+    {
+        $request->validate([
+            'current_password' => 'required|string',
+            'new_password' => 'required|string|min:8',
+        ]);
+
+        $user = $request->user();
+
+        if (!Hash::check($request->current_password, $user->password)) {
+            return response()->json([
+                'message' => 'Current password is incorrect'
+            ], 422);
+        }
+
+        $user->update([
+            'password' => Hash::make($request->new_password)
+        ]);
+
+        return response()->json([
+            'message' => 'Password changed successfully'
         ]);
     }
 }

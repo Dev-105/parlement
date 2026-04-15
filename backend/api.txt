@@ -18,6 +18,7 @@ Accept: application/json
 {
   "first_name": "John",
   "last_name": "Doe",
+  "cin": "AB123456",
   "email": "john.doe@example.com",
   "password": "password123",
   "phone": "+123456789",
@@ -26,7 +27,7 @@ Accept: application/json
   "country": "Morocco",
   "city": "Rabat",
   "address_line": "123 Main St",
-  "role": "stagiaire" 
+  "role": "stagiaire"
 }
 [Role must be one of: stagiaire, journaliste, chercheur, ecole, admin]
 
@@ -38,6 +39,7 @@ Accept: application/json
       "id": 1,
       "first_name": "John",
       "last_name": "Doe",
+      "cin": "AB123456",
       ...
     },
     "token": "1|abcdef..."
@@ -46,8 +48,8 @@ Accept: application/json
 
 - Error Response: (422 Unprocessable Entity)
 {
-  "message": "The email has already been taken.",
-  "errors": { "email": ["The email has already been taken."] }
+  "message": "The cin has already been taken.",
+  "errors": { "cin": ["The cin has already been taken."] }
 }
 
 1.2 Login User
@@ -91,14 +93,55 @@ Accept: application/json
   "data": { ... }
 }
 
+=========================================
+2. USER PROFILE
+=========================================
+
+2.1 Update Profile (Auth Required)
+- Endpoint: PUT /api/profile or POST /api/profile
+- Headers: Authorization: Bearer {token}
+- Content-Type: multipart/form-data
+- Body Fields:
+  "first_name": "John"
+  "last_name": "Doe"
+  "phone": "+123456789"
+  "city": "Rabat"
+  "address_line": "123 Main St"
+  "profile_image": (image file)
+  "banner_image": (image file)
+
+- Success Response: (200 OK)
+{
+  "message": "Profile updated successfully",
+  "data": { ... }
+}
+
+2.2 Change Password (Auth Required)
+- Endpoint: POST /api/change-password
+- Headers: Authorization: Bearer {token}
+- Body:
+{
+  "current_password": "oldpass123",
+  "new_password": "newpass456"
+}
+
+- Success Response: (200 OK)
+{
+  "message": "Password changed successfully"
+}
 
 =========================================
-2. DEMANDES (REQUESTS)
+3. DEMANDES (REQUESTS)
 =========================================
 
-2.1 Get All Demandes (Auth Required)
+3.1 Get All Demandes (Auth Required)
 - Endpoint: GET /api/demandes
 - Headers: Authorization: Bearer {token}
+- Query Params (optional):
+  status: pending | in_review | accepted | rejected
+  type: stage | presse | bibliotheque | visite
+  cin: string (admin only, searches demande owner CIN)
+
 - Success Response: (200 OK)
 {
   "message": "Demandes retrieved successfully",
@@ -109,26 +152,50 @@ Accept: application/json
       "status": "pending",
       "title": "Stage request",
       "message": "Please accept my stage",
-      "submitted_at": "2023-10-10T12:00:00.000000Z",
-      ...
+      "submitted_at": "2026-04-15T12:00:00.000000Z",
+      "user": { ... },
+      "details": { ... }
     }
   ]
 }
 
-2.2 Submit a New Demande (Auth Required)
+3.2 Submit a New Demande (Auth Required)
 - Endpoint: POST /api/demandes
 - Headers: Authorization: Bearer {token}
-- Body (Example for "stage"):
-{
-  "type": "stage",
-  "title": "Summer Internship",
-  "message": "I would like to apply for...",
-  "school_name": "University X",
-  "field_of_study": "Computer Science",
-  "start_date": "2024-06-01",
+- Content-Type: multipart/form-data
+- Common Fields:
+  "type": "stage" | "presse" | "bibliotheque" | "visite"
+  "title": "..."
+  "message": "..."
+
+- Stage Fields:
+  "school_name": "University X"
+  "field_of_study": "Computer Science"
+  "start_date": "2024-06-01"
   "end_date": "2024-08-31"
-}
-[Type must be one of: stage, presse, bibliotheque, visite. Conditional payload requirements apply based on type.]
+  "motivation_letter": "..."
+  "cv_file": (file)
+
+- Presse Fields:
+  "media_name": "Media House"
+  "press_card_number": "123456"
+  "organization": "News Org"
+  "supporting_document": (file)
+
+- Bibliotheque Fields:
+  "research_topic": "Political History"
+  "institution": "University X"
+  "visit_date": "2024-05-20"
+  "duration": "2 days"
+  "purpose": "Research"
+
+- Visite Fields:
+  "school_name": "High School Y"
+  "number_of_students": 30
+  "grade_level": "Première"
+  "visit_date": "2024-05-25"
+  "supervisor_name": "Mme Dupont"
+  "phone": "+212600000000"
 
 - Success Response: (201 Created)
 {
@@ -136,7 +203,7 @@ Accept: application/json
   "data": { ... }
 }
 
-2.3 Get Specific Demande Details (Auth Required)
+3.3 Get Specific Demande Details (Auth Required)
 - Endpoint: GET /api/demandes/{id}
 - Headers: Authorization: Bearer {token}
 - Success Response: (200 OK)
@@ -151,7 +218,19 @@ Accept: application/json
   "errors": []
 }
 
-2.4 Delete Demande (Auth Required)
+3.4 Download Demande File (Auth Required)
+- Endpoint: GET /api/demandes/{id}/download/{fileType}
+- Headers: Authorization: Bearer {token}
+- Path Params:
+  fileType: cv_file | supporting_document
+- Success Response: file download response
+- Error Response: (404 Not Found)
+{
+  "message": "File not found",
+  "errors": []
+}
+
+3.5 Delete Demande (Auth Required)
 - Endpoint: DELETE /api/demandes/{id}
 - Headers: Authorization: Bearer {token}
 - Success Response: (200 OK)
@@ -160,19 +239,38 @@ Accept: application/json
   "data": []
 }
 
+=========================================
+4. NOTIFICATIONS
+=========================================
+
+4.1 Get Notifications (Auth Required)
+- Endpoint: GET /api/notifications
+- Headers: Authorization: Bearer {token}
+- Success Response: (200 OK)
+{
+  "message": "Notifications retrieved successfully",
+  "data": [ ... ]
+}
+
+4.2 Mark Notification as Read (Auth Required)
+- Endpoint: PATCH /api/notifications/{id}/read
+- Headers: Authorization: Bearer {token}
+- Success Response: (200 OK)
+{
+  "message": "Notification marked as read successfully"
+}
 
 =========================================
-3. ADMIN OPERATIONS
+5. ADMIN OPERATIONS
 =========================================
 
-3.1 Update Demande Status (Admin Auth Required)
+5.1 Update Demande Status (Admin Auth Required)
 - Endpoint: PATCH /api/demandes/{id}/status
 - Headers: Authorization: Bearer {token}
 - Body:
 {
-  "status": "accepted" 
+  "status": "pending" | "in_review" | "accepted" | "rejected"
 }
-[Status must be one of: pending, in_review, accepted, rejected]
 
 - Success Response: (200 OK)
 {
@@ -180,8 +278,87 @@ Accept: application/json
   "data": { ... }
 }
 
-- Error Response: (403 Forbidden)
+5.2 Get User by ID (Admin Auth Required)
+- Endpoint: GET /api/admin/users/{id}
+- Headers: Authorization: Bearer {token}
+- Success Response: (200 OK)
 {
-  "message": "Unauthorized. Admin access required.",
-  "errors": []
+  "message": "User retrieved successfully",
+  "data": { ... }
 }
+
+5.3 Send Notification to Single User (Admin Auth Required)
+- Endpoint: POST /api/admin/users/{id}/notify
+- Headers: Authorization: Bearer {token}
+- Body:
+{
+  "title": "Important message",
+  "message": "Votre demande a été mise à jour."
+}
+
+- Success Response: (200 OK)
+{
+  "message": "Notification sent successfully",
+  "data": []
+}
+
+5.4 Send Notification to Multiple Users (Admin Auth Required)
+- Endpoint: POST /api/admin/users/notify
+- Headers: Authorization: Bearer {token}
+- Body:
+{
+  "user_ids": [1, 2, 3],
+  "title": "Service notice",
+  "message": "Merci de vérifier vos demandes."
+}
+
+- Success Response: (200 OK)
+{
+  "message": "Notifications sent successfully",
+  "data": []
+}
+
+=========================================
+6. USER RESOURCE
+=========================================
+
+Returned user fields:
+- id
+- first_name
+- last_name
+- cin
+- name
+- email
+- phone
+- date_of_birth
+- nationality
+- country
+- city
+- address_line
+- postal_code
+- description
+- role
+- status
+- profile_image
+- banner_image
+- cv_file
+- created_at
+- updated_at
+
+=========================================
+7. DEMANDE TYPES
+=========================================
+
+- stage
+- presse
+- bibliotheque
+- visite
+
+=========================================
+8. NOTES
+=========================================
+
+- `cin` must be unique per user.
+- Registration requires `cin` and `role`.
+- Profile update does not allow editing `cin`.
+- Admin can filter demandes by `cin` using the `/api/demandes` endpoint.
