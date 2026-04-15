@@ -47,10 +47,10 @@ const Sidebar = ({ isOpen, setIsOpen, darkMode }) => {
         style={{ direction: isRTL ? 'rtl' : 'ltr' }}
       >
         {/* Logo Section */}
-        <div className={`flex items-center justify-between px-5 py-4 border-b ${
+        <div className={`flex items-center justify-between px-5 border-b ${
           darkMode ? 'border-gray-700' : 'border-gray-200'
         }`}>
-          <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          {/* <div className={`flex items-center gap-2 ${isRTL ? 'flex-row-reverse' : ''}`}>
             <img 
               src="/royaumeDuMarocLogo.png" 
               alt="Logo" 
@@ -59,7 +59,7 @@ const Sidebar = ({ isOpen, setIsOpen, darkMode }) => {
             <span className={`text-lg font-bold tracking-tight ${
               darkMode ? 'text-orange-400' : 'text-orange-500'
             }`}>PARLEMENT</span>
-          </div>
+          </div> */}
           <button 
             className={`lg:hidden transition-colors ${
               darkMode ? 'text-gray-400 hover:text-orange-400' : 'text-gray-400 hover:text-orange-500'
@@ -71,7 +71,7 @@ const Sidebar = ({ isOpen, setIsOpen, darkMode }) => {
         </div>
 
         {/* User Info Section */}
-        <div className={`px-5 py-4 border-b ${
+        <div className={`px-5 py-3 border-b ${
           darkMode ? 'border-gray-700' : 'border-gray-200'
         }`}>
           <div className={`flex items-center gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>

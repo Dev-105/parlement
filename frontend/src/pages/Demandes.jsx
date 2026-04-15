@@ -574,7 +574,7 @@ const Demandes = () => {
             value={filter}
             onChange={(e) => setFilter(e.target.value)}
           >
-            <option value="all">Tous les statuts</option>
+            <option value="all">{t('common.all_statuses')}</option>
             <option value="pending">{t('pending')}</option>
             <option value="in_review">{t('in_review')}</option>
             <option value="accepted">{t('accepted')}</option>

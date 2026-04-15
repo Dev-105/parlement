@@ -153,6 +153,8 @@ i18n
             }
           },
           "common": {
+            "all_types": "Tous les types",
+            "all_statuses": "Tous les statuts",
             "new": "Nouveau",
             "retry": "Réessayer",
             "saving": "Enregistrement...",
@@ -373,6 +375,8 @@ i18n
             }
           },
           "common": {
+            "all_types": "All types",
+            "all_statuses": "All statuses",
             "new": "New",
             "retry": "Retry",
             "saving": "Saving...",
@@ -525,7 +529,7 @@ i18n
             },
             "types": {
               "stage": "التدريب",
-              "presse": "الضغط",
+              "presse": "الصحافة",
               "bibliotheque": "المكتبة",
               "visite": "زيارة"
             },
@@ -593,6 +597,8 @@ i18n
             }
           },
           "common": {
+            "all_types": "جميع الأنواع",
+            "all_statuses": "جميع الحالات",
             "new": "جديد",
             "retry": "إعادة المحاولة",
             "saving": "جاري الحفظ...",
@@ -813,6 +819,8 @@ i18n
             }
           },
           "common": {
+            "all_types": "Todos los tipos",
+            "all_statuses": "Todos los estados",
             "new": "Nuevo",
             "retry": "Reintentar",
             "saving": "Guardando...",

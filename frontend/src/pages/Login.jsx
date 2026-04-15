@@ -5,7 +5,7 @@ import { AuthContext } from '../context/AuthContext';
 
 const Login = () => {
   const { t } = useTranslation();
-  const { login } = useContext(AuthContext);
+  const { login, user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState('');
@@ -14,9 +14,13 @@ const Login = () => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   React.useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+      return;
+    }
     const timer = setTimeout(() => setInitialLoading(false), 1000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [user, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

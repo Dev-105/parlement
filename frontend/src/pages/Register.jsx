@@ -12,7 +12,7 @@ const roles = [
 
 const Register = () => {
   const { t } = useTranslation();
-  const { register } = useContext(AuthContext);
+  const { register, user } = useContext(AuthContext);
   const navigate = useNavigate();
   
   const [step, setStep] = useState(1);
@@ -27,9 +27,13 @@ const Register = () => {
   const [initialLoading, setInitialLoading] = useState(true);
 
   React.useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+      return;
+    }
     const timer = setTimeout(() => setInitialLoading(false), 1200);
     return () => clearTimeout(timer);
-  }, []);
+  }, [user, navigate]);
 
   const handleRoleSelect = (r) => {
     setRole(r);
