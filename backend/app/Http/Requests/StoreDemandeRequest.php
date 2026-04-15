@@ -28,7 +28,6 @@ class StoreDemandeRequest extends FormRequest
             $rules['cv_file'] = 'nullable|file|mimes:pdf,doc,docx|max:5120';
         } elseif ($this->input('type') === 'presse') {
             $rules['media_name'] = 'required|string|max:255';
-            $rules['press_card_number'] = 'required|string|max:255';
             $rules['organization'] = 'required|string|max:255';
             $rules['supporting_document'] = 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120';
         } elseif ($this->input('type') === 'bibliotheque') {

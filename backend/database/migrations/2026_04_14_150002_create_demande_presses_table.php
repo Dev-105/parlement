@@ -12,7 +12,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('demande_id')->constrained()->onDelete('cascade');
             $table->string('media_name');
-            $table->string('press_card_number');
             $table->string('organization');
             $table->string('supporting_document')->nullable();
             $table->timestamps();

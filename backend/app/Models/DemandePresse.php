@@ -10,7 +10,7 @@ class DemandePresse extends Model
     use HasFactory;
 
     protected $fillable = [
-        'demande_id', 'media_name', 'press_card_number', 'organization', 'supporting_document'
+        'demande_id', 'media_name', 'organization', 'supporting_document'
     ];
 
     public function demande()

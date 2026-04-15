@@ -31,7 +31,6 @@ const Demandes = () => {
     cv_file: null,
     motivation_letter: '',
     media_name: '',
-    press_card_number: '',
     organization: '',
     supporting_document: null,
     research_topic: '',
@@ -115,7 +114,6 @@ const Demandes = () => {
     
     if (demandeType === 'presse') {
       if (formData.media_name) formDataToSend.append('media_name', formData.media_name);
-      if (formData.press_card_number) formDataToSend.append('press_card_number', formData.press_card_number);
       if (formData.organization) formDataToSend.append('organization', formData.organization);
       if (formData.supporting_document) formDataToSend.append('supporting_document', formData.supporting_document);
     }
@@ -165,7 +163,6 @@ const Demandes = () => {
       cv_file: null,
       motivation_letter: '',
       media_name: '',
-      press_card_number: '',
       organization: '',
       supporting_document: null,
       research_topic: '',
@@ -456,7 +453,7 @@ const Demandes = () => {
       case 'presse':
         return (
           <>
-            <div className={`grid sm:grid-cols-2 gap-4 ${isRTL ? 'sm:gap-x-6' : ''}`}>
+            <div className={`grid sm:grid-cols-1 gap-4 ${isRTL ? 'sm:gap-x-6' : ''}`}>
               <div>
                 <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                   {t('dashboard.form.media_name')}
@@ -471,22 +468,6 @@ const Demandes = () => {
                   }`}
                   value={formData.media_name}
                   onChange={(e) => setFormData({...formData, media_name: e.target.value})}
-                />
-              </div>
-              <div>
-                <label className={`block text-sm font-medium mb-2 ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                  {t('dashboard.form.press_card_number')}
-                </label>
-                <input
-                  required
-                  type="text"
-                  className={`w-full px-3 py-2.5 rounded-xl border transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 text-sm ${
-                    darkMode 
-                      ? 'bg-gray-700 border-gray-600 text-white'
-                      : 'bg-gray-50 border-gray-200 text-gray-900'
-                  }`}
-                  value={formData.press_card_number}
-                  onChange={(e) => setFormData({...formData, press_card_number: e.target.value})}
                 />
               </div>
             </div>

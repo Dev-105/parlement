@@ -77,7 +77,6 @@ class DemandeController extends Controller
                 
                 $demande->presse()->create([
                     'media_name' => $data['media_name'] ?? null,
-                    'press_card_number' => $data['press_card_number'] ?? null,
                     'organization' => $data['organization'] ?? null,
                     'supporting_document' => $documentPath,
                 ]);

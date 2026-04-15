@@ -166,7 +166,6 @@ const DemandeDetail = () => {
     else if (demande.type === 'presse') {
       const presseFields = [
         { key: 'media_name', label: t('demandes.fields.media_name') },
-        { key: 'press_card_number', label: t('demandes.fields.press_card_number') },
         { key: 'organization', label: t('demandes.fields.organization') },
       ];
       
