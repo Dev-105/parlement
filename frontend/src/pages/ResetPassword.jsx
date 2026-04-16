@@ -103,13 +103,13 @@ const ResetPassword = () => {
     setErrors({});
 
     try {
-      const response = await axios.post('/api/reset-password', {
+      const response = await axios.post('/reset-password', {
         email,
         token,
         password,
         password_confirmation: passwordConfirmation
       }, {
-        baseURL: 'http://localhost:8000',
+        baseURL: import.meta.env.VITE_API_URL,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'

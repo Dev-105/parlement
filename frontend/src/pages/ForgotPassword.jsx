@@ -88,8 +88,8 @@ const ForgotPassword = () => {
     setSuccessMessage('');
 
     try {
-      const response = await axios.post('/api/forgot-password', { email }, {
-        baseURL: 'http://localhost:8000',
+      const response = await axios.post('/forgot-password', { email }, {
+        baseURL: import.meta.env.VITE_API_URL,
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
