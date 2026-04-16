@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\Demande;
+use App\Models\User;
+use App\Notifications\AdminMessageNotification;
 use App\Http\Requests\StoreDemandeRequest;
 use App\Http\Resources\DemandeResource;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Storage;
 
 class DemandeController extends Controller
@@ -200,7 +203,18 @@ class DemandeController extends Controller
             Storage::disk('public')->delete($demande->presse->supporting_document);
         }
 
+        $user = $request->user();
+        $demandeId = $demande->id;
+        $demandeType = ucfirst($demande->type);
+        $userName = trim($user->first_name . ' ' . $user->last_name) ?: $user->email;
+        $adminMessage = "L'utilisateur {$userName} ({$user->email}) a supprimé sa demande {$demandeType} (ID: {$demandeId}).";
+
         $demande->delete();
+
+        $adminUsers = User::where('role', 'admin')->get();
+        if ($adminUsers->isNotEmpty()) {
+            Notification::send($adminUsers, new AdminMessageNotification('Demande supprimée', $adminMessage));
+        }
 
         return response()->json([
             'message' => 'Demande deleted successfully',
