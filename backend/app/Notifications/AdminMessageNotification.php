@@ -30,7 +30,7 @@ class AdminMessageNotification extends Notification
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'mail'];
     }
 
     /**
@@ -38,11 +38,18 @@ class AdminMessageNotification extends Notification
      */
     public function toMail(object $notifiable): MailMessage
     {
+        $userName = $notifiable->first_name ? $notifiable->first_name . ' ' . $notifiable->last_name : 'Utilisateur';
+        $frontendUrl = rtrim(env('FRONTEND_URL', 'http://localhost:5173'), '/');
+
         return (new MailMessage)
-            ->line($this->title)
-            ->line($this->message)
-            ->action('View Details', url('/'))
-            ->line('Thank you for using our application!');
+            ->subject($this->title)
+            ->view('emails.admin-notification', [
+                'title' => $this->title,
+                'bodyMessage' => $this->message,
+                'userName' => $userName,
+                'logoUrl' => 'https://res.cloudinary.com/dbfudloiy/image/upload/v1776329323/royaumeDuMarocLogo_nk3bpl.png',
+                'ctaLink' => $frontendUrl . '/notifications'
+            ]);
     }
 
     /**

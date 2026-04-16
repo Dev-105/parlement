@@ -13,6 +13,12 @@ const DemandeDetail = () => {
   const [demande, setDemande] = useState(null);
   const [loading, setLoading] = useState(true);
   const [darkMode, setDarkMode] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => setToast(prev => ({ ...prev, show: false })), 4000);
+  };
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains('dark');
@@ -109,7 +115,7 @@ const DemandeDetail = () => {
       window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
       console.error('Error downloading file:', err);
-      alert(t('demandes.download_error'));
+      showToast(t('demandes.download_error'), 'error');
     }
   };
 
@@ -507,6 +513,18 @@ const DemandeDetail = () => {
           )}
         </div>
       </div>
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`fixed bottom-6 right-6 z-[60] flex items-center px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-0 opacity-100 ${
+          toast.type === 'error' 
+            ? 'bg-red-500 text-white shadow-red-500/20' 
+            : 'bg-emerald-500 text-white shadow-emerald-500/20'
+        }`}>
+          <i className={`text-lg ${isRTL ? 'ml-3' : 'mr-3'} ${toast.type === 'error' ? 'bi bi-x-circle' : 'bi bi-check-circle'}`}></i>
+          <span className="text-sm font-medium">{toast.message}</span>
+        </div>
+      )}
     </div>
   );
 };

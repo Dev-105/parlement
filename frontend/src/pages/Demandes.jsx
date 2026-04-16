@@ -50,6 +50,14 @@ const Demandes = () => {
   const [selectedDemande, setSelectedDemande] = useState(null);
   const [messageForm, setMessageForm] = useState({ title: '', message: '' });
   const [messageLoading, setMessageLoading] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  const showToast = (message, type = 'success') => {
+    setToast({ show: true, message, type });
+    setTimeout(() => {
+      setToast(prev => ({ ...prev, show: false }));
+    }, 4000);
+  };
 
   useEffect(() => {
     const isDark = document.documentElement.classList.contains('dark');
@@ -155,9 +163,9 @@ const Demandes = () => {
     } catch (err) {
       console.error('Error creating demande:', err);
       if (err.response?.data?.errors) {
-        alert(Object.values(err.response.data.errors).flat().join('\n'));
+        showToast(Object.values(err.response.data.errors).flat().join('\n'), 'error');
       } else {
-        alert('Erreur lors de la création de la demande');
+        showToast('Erreur lors de la création de la demande', 'error');
       }
     } finally {
       setSubmitLoading(false);
@@ -211,10 +219,10 @@ const Demandes = () => {
       await api.post(`/admin/users/${selectedDemande.user_id}/notify`, messageForm);
       setShowMessageModal(false);
       setMessageForm({ title: '', message: '' });
-      alert(t('demandes.message_sent'));
+      showToast(t('demandes.message_sent'), 'success');
     } catch (err) {
       console.error('Error sending message:', err);
-      alert(t('demandes.error_sending_message'));
+      showToast(t('demandes.error_sending_message'), 'error');
     } finally {
       setMessageLoading(false);
     }
@@ -252,10 +260,10 @@ const Demandes = () => {
       setShowBulkMessageModal(false);
       setBulkMessageForm({ title: '', message: '' });
       setSelectedUserIds([]);
-      alert(t('demandes.notifications_sent'));
+      showToast(t('demandes.notifications_sent'), 'success');
     } catch (err) {
       console.error('Error sending bulk message:', err);
-      alert(t('demandes.error_sending_notifications'));
+      showToast(t('demandes.error_sending_notifications'), 'error');
     } finally {
       setBulkMessageLoading(false);
     }
@@ -578,7 +586,7 @@ const Demandes = () => {
             <>
               <input
                 type="text"
-                placeholder={t('demandes.filter_cin')}
+                placeholder='CIN'
                 className={`px-3 py-2 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all duration-200 ${
                   darkMode 
                     ? 'bg-gray-700 border border-gray-600 text-white placeholder-gray-400'
@@ -695,6 +703,9 @@ const Demandes = () => {
                   )}
                   <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.id')}</th>
                   <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.type')}</th>
+                  {user?.role === 'admin' && (
+                    <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.email')}</th>
+                  )}
                   <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.title')}</th>
                   <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider hidden md:table-cell ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.date')}</th>
                   <th className={`px-5 py-3 text-xs font-medium uppercase tracking-wider ${isRTL ? 'text-right' : 'text-left'} ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>{t('demandes.table.status')}</th>
@@ -723,6 +734,11 @@ const Demandes = () => {
                           <span className={`text-xs font-medium ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>{getTypeLabel(item.type)}</span>
                         </div>
                       </td>
+                      {user?.role === 'admin' && (
+                        <td className={`px-5 py-3 text-xs ${darkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                          {item.user?.email || '-'}
+                        </td>
+                      )}
                       <td className="px-5 py-3">
                         <div className={`text-sm font-medium ${darkMode ? 'text-white' : 'text-gray-900'} max-w-xs truncate`}>{item.title}</div>
                         <div className={`text-xs mt-0.5 line-clamp-1 max-w-xs ${darkMode ? 'text-gray-500' : 'text-gray-400'}`}>{item.message}</div>
@@ -1050,6 +1066,18 @@ const Demandes = () => {
           onClose={() => setShowReviewModal(false)}
           onSuccess={() => setShowReviewModal(false)}
         />
+      )}
+
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`fixed bottom-6 right-6 z-[60] flex items-center px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-0 opacity-100 ${
+          toast.type === 'error' 
+            ? 'bg-red-500 text-white shadow-red-500/20' 
+            : 'bg-emerald-500 text-white shadow-emerald-500/20'
+        }`}>
+          <i className={`text-lg ${isRTL ? 'ml-3' : 'mr-3'} ${toast.type === 'error' ? 'bi bi-x-circle' : 'bi bi-check-circle'}`}></i>
+          <span className="text-sm font-medium">{toast.message}</span>
+        </div>
       )}
     </div>
   );
