@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../services/api';
+import ConfirmDialog from '../components/ConfirmDialog';
 import { AuthContext } from '../context/AuthContext';
 
 const Notifications = () => {
@@ -11,6 +12,14 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [darkMode, setDarkMode] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: '',
+    message: '',
+    confirmText: '',
+    cancelText: '',
+    onConfirm: null,
+  });
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   const showToast = (message, type = 'success') => {
@@ -69,8 +78,8 @@ const Notifications = () => {
     }
   };
 
-  const deleteNotification = async (id) => {
-    if (!window.confirm(t('notifications.delete_confirm'))) return;
+  const deleteNotificationConfirmed = async (id) => {
+    setConfirmDialog(prev => ({ ...prev, open: false }));
     try {
       await api.delete(`/notifications/${id}`);
       setNotifications(notifications.filter(n => n.id !== id));
@@ -78,6 +87,17 @@ const Notifications = () => {
       console.error('Error deleting notification:', e);
       showToast(t('notifications.delete_error'), 'error');
     }
+  };
+
+  const deleteNotification = (id) => {
+    setConfirmDialog({
+      open: true,
+      title: t('common.confirm'),
+      message: t('notifications.delete_confirm'),
+      confirmText: t('common.confirm'),
+      cancelText: t('common.cancel'),
+      onConfirm: () => deleteNotificationConfirmed(id),
+    });
   };
 
   if (loading) {
@@ -117,6 +137,17 @@ const Notifications = () => {
 
   return (
     <div className={`max-w-4xl mx-auto space-y-6 ${isRTL ? 'text-right' : 'text-left'}`}>
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmText={confirmDialog.confirmText}
+        cancelText={confirmDialog.cancelText}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+        darkMode={darkMode}
+        isRTL={isRTL}
+      />
       {/* Header */}
       <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ${isRTL ? 'sm:flex-row-reverse' : ''}`}>
         <div>

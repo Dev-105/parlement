@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import api from '../services/api';
+import ConfirmDialog from '../components/ConfirmDialog';
 import ReviewModal from '../components/ReviewModal';
 
 const Demandes = () => {
@@ -19,6 +20,14 @@ const Demandes = () => {
   
   const [showCreate, setShowCreate] = useState(false);
   const [showReviewModal, setShowReviewModal] = useState(false);
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    title: '',
+    message: '',
+    confirmText: '',
+    cancelText: '',
+    onConfirm: null,
+  });
   const [selectedUserIds, setSelectedUserIds] = useState([]);
   const [showBulkMessageModal, setShowBulkMessageModal] = useState(false);
   const [bulkMessageForm, setBulkMessageForm] = useState({ title: '', message: '' });
@@ -274,18 +283,28 @@ const Demandes = () => {
     }
   };
 
-  const handleDelete = async (id) => {
-    if (!window.confirm(t('demandes.confirm_delete'))) return;
+  const confirmDeleteDemande = async (id) => {
+    setConfirmDialog(prev => ({ ...prev, open: false }));
     try {
-      // Optimistic UI update to prevent scroll reset
       setDemandes(prev => prev.filter(d => d.id !== id));
       await api.delete(`/demandes/${id}`);
       showToast(t('demandes.deleted_success', 'Demande supprimée avec succès'), 'success');
-    } catch(e) {
+    } catch (e) {
       console.error('Error deleting demande:', e);
       showToast(t('demandes.error_deleting', 'Erreur lors de la suppression'), 'error');
       fetchDemandes();
     }
+  };
+
+  const handleDelete = (id) => {
+    setConfirmDialog({
+      open: true,
+      title: t('common.confirm'),
+      message: t('demandes.confirm_delete'),
+      confirmText: t('common.confirm'),
+      cancelText: t('common.cancel'),
+      onConfirm: () => confirmDeleteDemande(id),
+    });
   };
 
   const getStatusBadge = (status) => {
@@ -1076,6 +1095,18 @@ const Demandes = () => {
           onSuccess={() => setShowReviewModal(false)}
         />
       )}
+
+      <ConfirmDialog
+        open={confirmDialog.open}
+        title={confirmDialog.title}
+        message={confirmDialog.message}
+        confirmText={confirmDialog.confirmText}
+        cancelText={confirmDialog.cancelText}
+        onConfirm={confirmDialog.onConfirm}
+        onCancel={() => setConfirmDialog(prev => ({ ...prev, open: false }))}
+        darkMode={darkMode}
+        isRTL={isRTL}
+      />
 
       {/* Toast Notification */}
       {toast.show && (
