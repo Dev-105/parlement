@@ -203,10 +203,15 @@ const Demandes = () => {
 
   const handleStatusChange = async (id, status) => {
     try {
+      // Optimistic UI update to preserve scroll position
+      setDemandes(prev => prev.map(d => d.id === id ? { ...d, status } : d));
       await api.patch(`/demandes/${id}/status`, { status });
-      fetchDemandes();
+      showToast(t('demandes.status_updated', 'Statut mis à jour avec succès'), 'success');
     } catch (e) {
       console.error('Error updating status:', e);
+      showToast(t('demandes.error_updating_status', 'Erreur lors de la mise à jour'), 'error');
+      // Rollback on error
+      fetchDemandes();
     }
   };
 
@@ -272,10 +277,14 @@ const Demandes = () => {
   const handleDelete = async (id) => {
     if (!window.confirm(t('demandes.confirm_delete'))) return;
     try {
+      // Optimistic UI update to prevent scroll reset
+      setDemandes(prev => prev.filter(d => d.id !== id));
       await api.delete(`/demandes/${id}`);
-      fetchDemandes();
+      showToast(t('demandes.deleted_success', 'Demande supprimée avec succès'), 'success');
     } catch(e) {
       console.error('Error deleting demande:', e);
+      showToast(t('demandes.error_deleting', 'Erreur lors de la suppression'), 'error');
+      fetchDemandes();
     }
   };
 
