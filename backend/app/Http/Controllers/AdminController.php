@@ -59,6 +59,26 @@ class AdminController extends Controller
         ]);
     }
 
+    public function listUsers(Request $request): JsonResponse
+    {
+        $query = User::query();
+
+        if ($request->filled('email')) {
+            $query->where('email', 'like', '%' . $request->email . '%');
+        }
+
+        if ($request->filled('cin')) {
+            $query->where('cin', 'like', '%' . $request->cin . '%');
+        }
+
+        $users = $query->orderBy('created_at', 'desc')->get();
+
+        return response()->json([
+            'message' => 'Users retrieved successfully',
+            'data' => UserResource::collection($users)
+        ]);
+    }
+
     public function notifyUser(Request $request, $id): JsonResponse
     {
         $request->validate([

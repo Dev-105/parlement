@@ -24,6 +24,7 @@ const Sidebar = ({ isOpen, setIsOpen, darkMode }) => {
     { to: '/dashboard', icon: 'bi-grid-3x3-gap-fill', label: t('sidebar_dashboard') },
     { to: '/notifications', icon: 'bi-bell', label: t('sidebar_notifications') },
     { to: '/demandes', icon: 'bi-file-earmark-text', label: t('sidebar_requests') },
+    ...(user?.role === 'admin' ? [{ to: '/users', icon: 'bi-people', label: t('sidebar_users') }] : []),
     { to: '/profile', icon: 'bi-person', label: t('sidebar_profile') },
   ];
 

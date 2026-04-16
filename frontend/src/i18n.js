@@ -179,6 +179,7 @@ i18n
           "sidebar_dashboard": "Tableau de bord",
           "sidebar_notifications": "Notifications",
           "sidebar_requests": "Mes demandes",
+          "sidebar_users": "Utilisateurs",
           "sidebar_profile": "Mon profil",
           "sidebar_logout": "Déconnexion",
           "navbar_notifications": "Notifications",
@@ -272,7 +273,42 @@ i18n
               "accepted": "Acceptée",
               "rejected": "Refusée"
             }
+          },
+        "users": {
+          "title": "Utilisateurs",
+          "subtitle": "Voir tous les utilisateurs et envoyer des notifications système",
+          "filter_email": "Filtrer par e-mail",
+          "filter_email_placeholder": "Ex: utilisateur@example.com",
+          "filter_cin": "Filtrer par CIN",
+          "filter_cin_placeholder": "Ex: AB123456",
+          "search": "Rechercher",
+          "reset_filters": "Réinitialiser",
+          "select_users": "Sélectionner des utilisateurs",
+          "send_to_selected": "Envoyer à {{count}} utilisateur(s)",
+          "selected_users": "Utilisateur(s) sélectionné(s) : {{count}}",
+          "sending_to": "Envoi à {{count}} utilisateur(s)",
+          "send_notification": "Envoyer une notification",
+          "notification_title": "Titre de la notification",
+          "notification_title_placeholder": "Entrer le titre",
+          "notification_message": "Message de la notification",
+          "notification_message_placeholder": "Entrer le message",
+          "notifications_sent": "Notifications envoyées avec succès",
+          "error_sending_notifications": "Erreur lors de l'envoi des notifications",
+          "error_loading": "Impossible de charger les utilisateurs",
+          "no_users_found": "Aucun utilisateur trouvé",
+          "no_users_desc": "Aucun utilisateur ne correspond aux filtres appliqués.",
+          "select_user_for_notification": "Veuillez sélectionner au moins un utilisateur.",
+          "access_denied": "Accès refusé",
+          "admin_only": "Seuls les administrateurs peuvent accéder à cette page.",
+          "table": {
+            "name": "Nom",
+            "email": "E-mail",
+            "cin": "CIN",
+            "role": "Rôle",
+            "status": "Statut",
+            "actions": "Actions"
           }
+        }
         }
       },
       en: {
@@ -431,6 +467,7 @@ i18n
           "sidebar_dashboard": "Dashboard",
           "sidebar_notifications": "Notifications",
           "sidebar_requests": "Requests",
+          "sidebar_users": "Users",
           "sidebar_profile": "Profile",
           "sidebar_logout": "Logout",
           "navbar_notifications": "Notifications",
@@ -524,8 +561,44 @@ i18n
               "accepted": "Accepted",
               "rejected": "Rejected"
             }
+          },
+          "users": {
+          "title": "Users",
+          "subtitle": "View all users and send system notifications",
+          "filter_email": "Filter by email",
+          "filter_email_placeholder": "Ex: user@example.com",
+          "filter_cin": "Filter by CIN",
+          "filter_cin_placeholder": "Ex: AB123456",
+          "search": "Search",
+          "reset_filters": "Reset filters",
+          "select_users": "Select users",
+          "send_to_selected": "Send to {{count}} user(s)",
+          "selected_users": "Selected user(s): {{count}}",
+          "sending_to": "Sending to {{count}} user(s)",
+          "send_notification": "Send notification",
+          "notification_title": "Notification title",
+          "notification_title_placeholder": "Enter title",
+          "notification_message": "Notification message",
+          "notification_message_placeholder": "Enter message",
+          "notifications_sent": "Notifications sent successfully",
+          "error_sending_notifications": "Error sending notifications",
+          "error_loading": "Failed to load users",
+          "no_users_found": "No users found",
+          "no_users_desc": "No users match the applied filters.",
+          "select_user_for_notification": "Please select at least one user.",
+          "access_denied": "Access denied",
+          "admin_only": "Only admins can access this page.",
+          "table": {
+            "name": "Name",
+            "email": "Email",
+            "cin": "CIN",
+            "role": "Role",
+            "status": "Status",
+            "actions": "Actions"
           }
         }
+        }
+        
       },
       ar: {
         translation: {
@@ -683,6 +756,7 @@ i18n
           "sidebar_dashboard": "لوحة القيادة",
           "sidebar_notifications": "الإشعارات",
           "sidebar_requests": "طلباتي",
+          "sidebar_users": "المستخدمين",
           "sidebar_profile": "الملف الشخصي",
           "sidebar_logout": "تسجيل الخروج",
           "navbar_notifications": "الإشعارات",
@@ -776,7 +850,42 @@ i18n
               "accepted": "مقبول",
               "rejected": "مرفوض"
             }
+          },
+        "users": {
+          "title": "المستخدمين",
+          "subtitle": "عرض جميع المستخدمين وإرسال إشعارات النظام",
+          "filter_email": "التصفية حسب البريد الإلكتروني",
+          "filter_email_placeholder": "مثال: user@example.com",
+          "filter_cin": "التصفية حسب CIN",
+          "filter_cin_placeholder": "مثال: AB123456",
+          "search": "بحث",
+          "reset_filters": "إعادة التعيين",
+          "select_users": "تحديد المستخدمين",
+          "send_to_selected": "إرسال إلى {{count}} مستخدم(ين)",
+          "selected_users": "المستخدمون المحددون: {{count}}",
+          "sending_to": "إرسال إلى {{count}} مستخدم(ين)",
+          "send_notification": "إرسال إشعار",
+          "notification_title": "عنوان الإشعار",
+          "notification_title_placeholder": "أدخل العنوان",
+          "notification_message": "رسالة الإشعار",
+          "notification_message_placeholder": "أدخل الرسالة",
+          "notifications_sent": "تم إرسال الإشعارات بنجاح",
+          "error_sending_notifications": "خطأ في إرسال الإشعارات",
+          "error_loading": "فشل في تحميل المستخدمين",
+          "no_users_found": "لم يتم العثور على مستخدمين",
+          "no_users_desc": "لا يوجد مستخدمون يطابقون عوامل التصفية المطبقة.",
+          "select_user_for_notification": "يرجى تحديد مستخدم واحد على الأقل.",
+          "access_denied": "تم رفض الوصول",
+          "admin_only": "يمكن للمسؤولين فقط الوصول إلى هذه الصفحة.",
+          "table": {
+            "name": "الاسم",
+            "email": "البريد الإلكتروني",
+            "cin": "CIN",
+            "role": "الدور",
+            "status": "الحالة",
+            "actions": "الإجراءات"
           }
+        }
         }
       },
       es: {
@@ -935,6 +1044,7 @@ i18n
           "sidebar_dashboard": "Tablero",
           "sidebar_notifications": "Notificaciones",
           "sidebar_requests": "Mis solicitudes",
+          "sidebar_users": "Usuarios",
           "sidebar_profile": "Perfil",
           "sidebar_logout": "Cerrar sesión",
           "navbar_notifications": "Notificaciones",
@@ -1028,7 +1138,42 @@ i18n
               "accepted": "Aceptada",
               "rejected": "Rechazada"
             }
+          },
+        "users": {
+          "title": "Usuarios",
+          "subtitle": "Ver todos los usuarios y enviar notificaciones del sistema",
+          "filter_email": "Filtrar por correo electrónico",
+          "filter_email_placeholder": "Ej: usuario@example.com",
+          "filter_cin": "Filtrar por DNI/CIN",
+          "filter_cin_placeholder": "Ej: AB123456",
+          "search": "Buscar",
+          "reset_filters": "Restablecer filtros",
+          "select_users": "Seleccionar usuarios",
+          "send_to_selected": "Enviar a {{count}} usuario(s)",
+          "selected_users": "Usuario(s) seleccionado(s): {{count}}",
+          "sending_to": "Enviando a {{count}} usuario(s)",
+          "send_notification": "Enviar notificación",
+          "notification_title": "Título de la notificación",
+          "notification_title_placeholder": "Ingrese un título",
+          "notification_message": "Mensaje de la notificación",
+          "notification_message_placeholder": "Ingrese el mensaje",
+          "notifications_sent": "Notificaciones enviadas con éxito",
+          "error_sending_notifications": "Error al enviar notificaciones",
+          "error_loading": "Error al cargar usuarios",
+          "no_users_found": "No se encontraron usuarios",
+          "no_users_desc": "Ningún usuario coincide con los filtros aplicados.",
+          "select_user_for_notification": "Seleccione al menos un usuario.",
+          "access_denied": "Acceso denegado",
+          "admin_only": "Solo los administradores pueden acceder a esta página.",
+          "table": {
+            "name": "Nombre",
+            "email": "Correo",
+            "cin": "DNI/CIN",
+            "role": "Rol",
+            "status": "Estado",
+            "actions": "Acciones"
           }
+        }
         }
       }
     }

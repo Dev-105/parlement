@@ -39,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::middleware('admin')->group(function () {
         Route::patch('/demandes/{id}/status', [AdminController::class, 'updateStatus']);
+        Route::get('/admin/users', [AdminController::class, 'listUsers']);
         Route::get('/admin/users/{id}', [AdminController::class, 'showUser']);
         Route::post('/admin/users/{id}/notify', [AdminController::class, 'notifyUser']);
         Route::post('/admin/users/notify', [AdminController::class, 'notifyUsers']);

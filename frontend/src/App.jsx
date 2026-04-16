@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import Demandes from './pages/Demandes';
 import DemandeDetail from './pages/DemandeDetail';
 import Notifications from './pages/Notifications';
+import Users from './pages/Users';
 import Profile from './pages/Profile';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
@@ -130,6 +131,7 @@ function App() {
         <Route path="demandes" element={<Demandes />} />
         <Route path="demandedetail/:id" element={<DemandeDetail />} />
         <Route path="notifications" element={<Notifications />} />
+        <Route path="users" element={<Users />} />
         <Route path="profile" element={<Profile />} />
         <Route path="admin/users/:id" element={<Profile />} />
       </Route>
