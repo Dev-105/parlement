@@ -33,6 +33,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/notifications', [\App\Http\Controllers\NotificationController::class, 'index']);
     Route::patch('/notifications/{id}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead']);
+    Route::delete('/notifications/{id}', [\App\Http\Controllers\NotificationController::class, 'destroy']);
+    Route::post('/notifications/bulk', [\App\Http\Controllers\NotificationController::class, 'destroyMultiple']);
+    Route::delete('/notifications/bulk', [\App\Http\Controllers\NotificationController::class, 'destroyMultiple']);
 
     Route::middleware('admin')->group(function () {
         Route::patch('/demandes/{id}/status', [AdminController::class, 'updateStatus']);

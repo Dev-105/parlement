@@ -198,6 +198,12 @@ i18n
             "no_content": "Aucun contenu",
             "mark_read": "Marquer comme lue",
             "delete_confirm": "Supprimer cette notification ?",
+            "select_all": "Tout sélectionner",
+            "deselect_all": "Tout désélectionner",
+            "delete_selected_confirm": "Supprimer les notifications sélectionnées ?",
+            "delete_selected": "Supprimer {{count}} sélectionnée(s)",
+            "delete_selected_success": "Notifications sélectionnées supprimées avec succès",
+            "delete_selected_error": "Erreur lors de la suppression des notifications sélectionnées",
             "delete_error": "Erreur lors de la suppression"
           },
           "demandes": {
@@ -444,6 +450,12 @@ i18n
             "no_content": "No content",
             "mark_read": "Mark as read",
             "delete_confirm": "Delete this notification?",
+            "select_all": "Select all",
+            "deselect_all": "Deselect all",
+            "delete_selected_confirm": "Delete selected notifications?",
+            "delete_selected": "Delete {{count}} selected",
+            "delete_selected_success": "Selected notifications deleted successfully",
+            "delete_selected_error": "Error deleting selected notifications",
             "delete_error": "Error during deletion"
           },
           "demandes": {
@@ -690,6 +702,12 @@ i18n
             "no_content": "لا يوجد محتوى",
             "mark_read": "تحديد كمقروء",
             "delete_confirm": "هل تريد حذف هذا الإشعار؟",
+            "select_all": "تحديد الكل",
+            "deselect_all": "إلغاء تحديد الكل",
+            "delete_selected_confirm": "هل تريد حذف الإشعارات المحددة؟",
+            "delete_selected": "حذف {{count}} محددة",
+            "delete_selected_success": "تم حذف الإشعارات المحددة بنجاح",
+            "delete_selected_error": "خطأ أثناء حذف الإشعارات المحددة",
             "delete_error": "خطأ أثناء الحذف"
           },
           "demandes": {
@@ -936,6 +954,12 @@ i18n
             "no_content": "Sin contenido",
             "mark_read": "Marcar como leído",
             "delete_confirm": "¿Eliminar esta notificación?",
+            "select_all": "Seleccionar todo",
+            "deselect_all": "Deseleccionar todo",
+            "delete_selected_confirm": "¿Eliminar las notificaciones seleccionadas?",
+            "delete_selected": "Eliminar {{count}} seleccionadas",
+            "delete_selected_success": "Notificaciones seleccionadas eliminadas con éxito",
+            "delete_selected_error": "Error al eliminar las notificaciones seleccionadas",
             "delete_error": "Error durante la eliminación"
           },
           "demandes": {

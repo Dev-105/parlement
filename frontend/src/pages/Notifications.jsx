@@ -20,7 +20,9 @@ const Notifications = () => {
     cancelText: '',
     onConfirm: null,
   });
+  const [selectedNotifications, setSelectedNotifications] = useState([]);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const isAdmin = user?.role === 'admin';
 
   const showToast = (message, type = 'success') => {
     setToast({ show: true, message, type });
@@ -82,10 +84,26 @@ const Notifications = () => {
     setConfirmDialog(prev => ({ ...prev, open: false }));
     try {
       await api.delete(`/notifications/${id}`);
-      setNotifications(notifications.filter(n => n.id !== id));
+      setSelectedNotifications((prev) => prev.filter((selectedId) => selectedId !== id));
+      await fetchNotifications();
     } catch (e) {
-      console.error('Error deleting notification:', e);
-      showToast(t('notifications.delete_error'), 'error');
+      console.error('Error deleting notification:', e.response || e);
+      const message = e.response?.data?.message || t('notifications.delete_error');
+      showToast(message, 'error');
+    }
+  };
+
+  const toggleNotificationSelection = (id) => {
+    setSelectedNotifications((prev) =>
+      prev.includes(id) ? prev.filter((selectedId) => selectedId !== id) : [...prev, id]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedNotifications.length === notifications.length) {
+      setSelectedNotifications([]);
+    } else {
+      setSelectedNotifications(notifications.map((notif) => notif.id));
     }
   };
 
@@ -100,12 +118,46 @@ const Notifications = () => {
     });
   };
 
+  const deleteSelectedConfirmed = async (ids) => {
+    setConfirmDialog(prev => ({ ...prev, open: false }));
+    const normalizedIds = ids
+      .map((id) => parseInt(id, 10))
+      .filter((id) => !Number.isNaN(id));
+
+    if (normalizedIds.length === 0) {
+      showToast(t('notifications.delete_selected_error', 'Error deleting selected notifications'), 'error');
+      return;
+    }
+
+    try {
+      await api.post('/notifications/bulk', { ids: normalizedIds });
+      setSelectedNotifications([]);
+      await fetchNotifications();
+      showToast(t('notifications.delete_selected_success', 'Selected notifications deleted'), 'success');
+    } catch (e) {
+      console.error('Error deleting selected notifications:', e.response || e);
+      const message = e.response?.data?.message || t('notifications.delete_selected_error', 'Error deleting selected notifications');
+      showToast(message, 'error');
+    }
+  };
+
+  const confirmDeleteSelected = () => {
+    setConfirmDialog({
+      open: true,
+      title: t('common.confirm'),
+      message: t('notifications.delete_selected_confirm'),
+      confirmText: t('common.confirm'),
+      cancelText: t('common.cancel'),
+      onConfirm: () => deleteSelectedConfirmed(selectedNotifications),
+    });
+  };
+
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto space-y-4 mt-6">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className={`p-4 rounded-xl flex gap-4 animate-pulse ${darkMode ? 'bg-gray-800' : 'bg-white shadow-sm'}`}>
-            <div className={`w-12 h-12 rounded-full flex-shrink-0 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
+            <div className={`w-12 h-12 rounded-full shrink-0 ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
             <div className="flex-1 space-y-3 py-1">
               <div className={`h-4 w-3/4 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
               <div className={`h-3 w-1/2 rounded ${darkMode ? 'bg-gray-700' : 'bg-gray-200'}`}></div>
@@ -162,7 +214,33 @@ const Notifications = () => {
           </p>
         </div>
         
-        <div className={`flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+        <div className={`flex flex-wrap gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
+          {notifications.length > 0 && !isAdmin && (
+            <>
+              <button
+                type="button"
+                onClick={toggleSelectAll}
+                className={`px-4 py-2 text-sm font-semibold rounded-xl transition-all duration-200 ${
+                  darkMode
+                    ? 'bg-gray-700 border border-gray-600 text-gray-300 hover:bg-gray-600'
+                    : 'bg-white border border-gray-200 text-gray-700 hover:bg-gray-50'
+                }`}
+              >
+                {selectedNotifications.length === notifications.length
+                  ? t('notifications.deselect_all')
+                  : t('notifications.select_all')}
+              </button>
+              {selectedNotifications.length > 0 && (
+                <button
+                  type="button"
+                  onClick={confirmDeleteSelected}
+                  className="px-4 py-2 text-sm font-semibold rounded-xl bg-red-600 text-white hover:bg-red-700 transition-all duration-200"
+                >
+                  {t('notifications.delete_selected', { count: selectedNotifications.length })}
+                </button>
+              )}
+            </>
+          )}
           {unreadCount > 0 && (
             <button 
               onClick={markAllAsRead} 
@@ -209,16 +287,27 @@ const Notifications = () => {
                 >
                   <div className="p-6">
                     <div className={`flex gap-4 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                      {/* Icon */}
-                      <div className={`flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
-                        isUnread 
-                          ? darkMode 
-                            ? 'bg-orange-900/50 text-orange-400' 
-                            : 'bg-orange-100 text-orange-600'
-                          : darkMode 
-                            ? 'bg-gray-700 text-gray-500' 
-                            : 'bg-gray-100 text-gray-500'
-                      }`}>
+                    {!isAdmin && (
+                      <div className="flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={selectedNotifications.includes(notif.id)}
+                          onChange={() => toggleNotificationSelection(notif.id)}
+                          className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500"
+                          aria-label={t('notifications.select_notification')}
+                        />
+                      </div>
+                    )}
+                    {/* Icon */}
+                    <div className={`shrink-0 w-10 h-10 rounded-full flex items-center justify-center ${
+                      isUnread 
+                        ? darkMode 
+                          ? 'bg-orange-900/50 text-orange-400' 
+                          : 'bg-orange-100 text-orange-600'
+                        : darkMode 
+                          ? 'bg-gray-700 text-gray-500' 
+                          : 'bg-gray-100 text-gray-500'
+                    }`}>
                         <i className={`bi ${isUnread ? 'bi-envelope-fill' : 'bi-envelope'}`}></i>
                       </div>
                       
@@ -260,7 +349,7 @@ const Notifications = () => {
                         
                         {/* Action Buttons */}
                         <div className={`mt-3 flex gap-3 ${isRTL ? 'flex-row-reverse' : ''}`}>
-                          {isUnread && (
+                            {isUnread && (
                             <button 
                               onClick={() => markAsRead(notif.id)}
                               className={`text-sm font-medium transition-colors ${
@@ -270,14 +359,16 @@ const Notifications = () => {
                               {t('notifications.mark_read')}
                             </button>
                           )}
-                          {/* <button 
-                            onClick={() => deleteNotification(notif.id)}
-                            className={`text-sm font-medium transition-colors ${
-                              darkMode ? 'text-red-400 hover:text-red-300' : 'text-red-600 hover:text-red-800'
-                            }`}
-                          >
-                            Supprimer
-                          </button> */}
+                          {!isAdmin && (
+                            <button 
+                              onClick={() => deleteNotification(notif.id)}
+                              className={`text-sm font-medium transition-colors ${
+                                darkMode ? 'text-red-400 hover:text-red-300' : 'text-red-600 hover:text-red-800'
+                              }`}
+                            >
+                              Supprimer
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -291,7 +382,7 @@ const Notifications = () => {
 
       {/* Toast Notification */}
       {toast.show && (
-        <div className={`fixed bottom-6 right-6 z-[60] flex items-center px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-0 opacity-100 ${
+        <div className={`fixed bottom-6 right-6 z-60 flex items-center px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-0 opacity-100 ${
           toast.type === 'error' 
             ? 'bg-red-500 text-white shadow-red-500/20' 
             : 'bg-emerald-500 text-white shadow-emerald-500/20'
