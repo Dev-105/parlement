@@ -1079,13 +1079,28 @@ const Demandes = () => {
 
       {/* Toast Notification */}
       {toast.show && (
-        <div className={`fixed bottom-6 right-6 z-[60] flex items-center px-4 py-3 rounded-xl shadow-lg transition-all duration-300 transform translate-y-0 opacity-100 ${
-          toast.type === 'error' 
-            ? 'bg-red-500 text-white shadow-red-500/20' 
-            : 'bg-emerald-500 text-white shadow-emerald-500/20'
+        <div className={`fixed bottom-6 left-1/2 z-[60] flex max-w-xl w-[min(100%,420px)] items-center justify-between gap-3 px-4 py-3 rounded-2xl shadow-2xl transition-all duration-300 ease-out translate-x-[-50%] ${
+          toast.type === 'error'
+            ? 'bg-red-600 text-white shadow-red-700/20 ring-1 ring-red-400/20'
+            : 'bg-emerald-600 text-white shadow-emerald-700/20 ring-1 ring-emerald-400/20'
         }`}>
-          <i className={`text-lg ${isRTL ? 'ml-3' : 'mr-3'} ${toast.type === 'error' ? 'bi bi-x-circle' : 'bi bi-check-circle'}`}></i>
-          <span className="text-sm font-medium">{toast.message}</span>
+          <div className="flex items-center gap-3">
+            <div className={`flex h-11 w-11 items-center justify-center rounded-2xl ${toast.type === 'error' ? 'bg-red-700/20 text-red-100' : 'bg-emerald-700/20 text-emerald-100'}`}>
+              <i className={`text-xl ${toast.type === 'error' ? 'bi bi-x-circle-fill' : 'bi bi-check-circle-fill'}`}></i>
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold tracking-tight">{toast.type === 'error' ? t('common.error') : t('common.success')}</p>
+              <p className="text-sm leading-5 text-white/90 truncate">{toast.message}</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setToast(prev => ({ ...prev, show: false }))}
+            className="text-white/80 hover:text-white transition-colors"
+            aria-label={t('common.close')}
+          >
+            <i className="bi bi-x-lg"></i>
+          </button>
         </div>
       )}
     </div>
