@@ -163,9 +163,9 @@ const Login = () => {
                 </label>
               </div>
               <div className="text-sm">
-                <a href="#" className="text-orange-500 hover:text-orange-600 transition-colors font-medium">
+                <Link to="/forgot-password" className="text-orange-500 hover:text-orange-600 transition-colors font-medium">
                   Mot de passe oublié ?
-                </a>
+                </Link>
               </div>
             </div>
 

@@ -9,6 +9,10 @@ use App\Http\Controllers\AdminController;
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Password Reset Routes
+Route::post('/forgot-password', [\App\Http\Controllers\PasswordResetController::class, 'forgotPassword'])->middleware('throttle:6,1');
+Route::post('/reset-password', [\App\Http\Controllers\PasswordResetController::class, 'resetPassword']);
+
 Route::get('/reviews', [\App\Http\Controllers\ReviewController::class, 'index']);
 
 Route::middleware('auth:sanctum')->group(function () {
