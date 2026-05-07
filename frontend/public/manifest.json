@@ -1,0 +1,23 @@
+{
+  "name": "Parlement",
+  "short_name": "Parlement",
+  "description": "Parlement web app for demandes and administration.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1f2937",
+  "dir": "ltr",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "./public/royaumeDuMarocLogo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./public/royaumeDuMarocLogo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
